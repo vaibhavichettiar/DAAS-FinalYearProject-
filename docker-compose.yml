@@ -1,5 +1,10 @@
 version: '3'
 
+networks:
+  daas:
+    external: false
+    name: daas
+
 services:
   server:
     build:
@@ -8,7 +13,9 @@ services:
     image: server:node
     container_name: node_container
     ports:
-      - "8001:5000"
+      - "8001:8001"
+    networks:
+      - daas
   client:
     build:
       context: ./client
@@ -16,4 +23,21 @@ services:
     image: client:react
     container_name: react_container
     ports:
-      - "3001:3000"
+      - "3001:3001"
+    networks:
+      - daas
+  cassandra:
+    image: 'bitnami/cassandra:latest'
+    container_name: cassandra
+    build:
+      context: ./cassandra
+      dockerfile: ./Dockerfile
+    ports:
+      - "9001:9001"
+    environment:
+      POSTGRES_USER: cassandra
+      POSTGRES_PASSWORD: cassandra
+    volumes:
+      - ./database/data:/data
+    networks:
+      - daas
