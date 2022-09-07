@@ -13,9 +13,12 @@ services:
     image: server:node
     container_name: node_container
     ports:
-      - "8001:8001"
+      - "5001:5001"
     networks:
       - daas
+    volumes:
+      - ./server:/295B/server
+    
   client:
     build:
       context: ./client
@@ -23,9 +26,11 @@ services:
     image: client:react
     container_name: react_container
     ports:
-      - "3001:3001"
+      - "3000:3000"
     networks:
       - daas
+    volumes:
+    - ./client:/295B/client
   cassandra:
     image: 'bitnami/cassandra:latest'
     container_name: cassandra
@@ -33,11 +38,11 @@ services:
       context: ./cassandra
       dockerfile: ./Dockerfile
     ports:
-      - "9001:9001"
+      - "9042:9042"
     environment:
       POSTGRES_USER: cassandra
       POSTGRES_PASSWORD: cassandra
     volumes:
-      - ./database/data:/data
+      - ./cassandra:/data
     networks:
       - daas
