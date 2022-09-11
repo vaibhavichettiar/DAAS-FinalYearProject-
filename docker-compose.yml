@@ -46,3 +46,17 @@ services:
       - ./cassandra:/data
     networks:
       - daas
+
+  processingServer:
+    build:
+      context: ./processingServer
+      dockerfile: ./Dockerfile
+    image: spark:3.1.2
+    container_name: spark_container
+    ports:
+      - "5000:5000"
+    networks:
+      - daas
+    volumes:
+      - ./processingServer:/home/jovyan/295B/processingServer
+      
