@@ -1,15 +1,19 @@
-import './App.css';
+import './App.scss';
 import { BrowserRouter as Router, Routes } from "react-router-dom";
 import { Route } from "react-router-dom";
-import LandingComponent from './components/Landing/LandingComponent';
+import { Login,Register } from './components/Login/index';
+// import LandingComponent from './components/Landing/LandingComponent';
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path = "/" element = {<LandingComponent />}/>
-      </Routes>
-      </Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Login/>} />
+          <Route path="/register" element={<Register/>}/>
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
