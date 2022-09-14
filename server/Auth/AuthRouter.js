@@ -5,8 +5,8 @@ const corsMethodsAllowed = require('../corsMethodsAllowed.js');
 const bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
 
-router.post('/login', jsonParser, corsMethodsAllowed(['POST']), Login.loginUser);
-router.post('/register', jsonParser, corsMethodsAllowed(['POST']), registeruser.registerUser);
+router.post('/login', jsonParser, Login.loginUser);
+router.post('/register', jsonParser, registeruser.registerUser);
 
 
 module.exports = router;
