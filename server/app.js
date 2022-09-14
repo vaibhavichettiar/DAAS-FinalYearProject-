@@ -4,6 +4,7 @@ var kafka_consumer = require('./kafka/consumer');
 var kafka = require('kafka-node');
 var config = require('./config/config.json')
 
+app.use('/auth', require('./Auth/AuthRouter.js'));
 app.get('/',(req,res) => {
     res.sendStatus(200);
     Producer = kafka.Producer,
