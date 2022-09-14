@@ -3,7 +3,6 @@ const {addColors, createLogger, format, transports} = require('winston');
 const {getNamespace} = require('cls-hooked');
 
 const {colorize, combine, errors, printf} = format;
-// const env = process.env.NODE_ENV;
 const logConfig = config.get('logging');
 
 const customLevels = {

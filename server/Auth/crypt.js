@@ -1,5 +1,4 @@
 const CryptoJS = require('crypto-js');
-const dotenv = require("dotenv");
 
 const passphrase = 'Z:zR-u#RCZG2#5@$C1sOz_mkbBI8D5%R&eTZ<5}GJtU]V3~W6C_HxQy6939(KkF';
 
