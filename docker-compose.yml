@@ -51,6 +51,39 @@ services:
       - CASSANDRA_PASSWORD=cassandra
     networks:
       - daas
+    
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - type: volume
+        source: zookeeper_vol
+        target: /var/lib/zookeeper/data
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_MESSAGE_MAX_BYTES: 200000000
+      KAFKA_MAX_PARTITION_FETCH_BYTES: 200000000
+      KAFKA_FETCH_MAX_BYTES: 200000000
+      KAFKA_MAX_REQUEST_SIZE: 200000000
+      KAFKA_SOCKET_REQUEST_MAX_BYTES: 200000000
+    volumes:
+      - type: volume
+        source: kafka_vol
+        target: /var/lib/kafka/data
 
   processingServer:
     build:
@@ -68,3 +101,5 @@ services:
 volumes:
   cassandra_data:
     driver: local
+  kafka_vol:
+  zookeeper_vol:
