@@ -5,6 +5,7 @@ var kafka = require('kafka-node');
 var config = require('./config/config.json')
 const cors = require('cors');
 
+app.use(cors());
 app.use('/auth', require('./Auth/AuthRouter.js'));
 app.get('/',(req,res) => {
     res.sendStatus(200);
@@ -30,5 +31,5 @@ app.get('/',(req,res) => {
 
 app.listen(5001,()=>{
     console.log('my server is running on port 5001');
-    kafka_consumer.consumer();
+    //kafka_consumer.consumer();
 })
