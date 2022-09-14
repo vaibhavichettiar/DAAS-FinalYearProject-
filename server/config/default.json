@@ -1,0 +1,22 @@
+{
+    "cassandra":{
+      "contactPoints": ["localhost:9042"],
+      "keyspace": "daas_ks",
+      "localDataCenter": "datacenter1",
+      "credentials": {
+        "username": "cassandra",
+        "password": "cassandra"
+      }
+    },
+    "logging": {
+        "level": {
+            "console": "verbose"
+        },
+        "optional": {
+            "id": true,
+            "ip": true,
+            "timestamp": true
+        },
+        "verboseLimit": 300
+    }
+}
