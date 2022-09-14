@@ -2,7 +2,6 @@ import './App.scss';
 import { BrowserRouter as Router, Routes } from "react-router-dom";
 import { Route } from "react-router-dom";
 import { Login,Register } from './components/Login/index';
-// import LandingComponent from './components/Landing/LandingComponent';
 
 function App() {
   return (
