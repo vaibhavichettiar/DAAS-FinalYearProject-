@@ -17,7 +17,7 @@ class predictionService():
     def predict(self, futureDates, productId, bucketName, processingId):
 
         modelFilename = self.getModelFileName(productId, processingId)
-
+        logger.info("BucketName: %s, ModelFilename: %s", bucketName, modelFilename)
         response = s3Conn.Object(bucketName, modelFilename)
 
         body_string = response.get()['Body'].read()
