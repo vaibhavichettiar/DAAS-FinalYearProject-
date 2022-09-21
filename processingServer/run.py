@@ -1,5 +1,4 @@
 from app.app import app
-from app.models.spark import sparkSession
 import os
 
 if __name__ == '__main__':

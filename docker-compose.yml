@@ -91,6 +91,11 @@ services:
       dockerfile: ./Dockerfile
     image: spark:3.1.2
     container_name: spark_container
+    depends_on:
+      - cassandra
+    environment:
+      - CASSANDRA_HOST=cassandra
+      - CASSANDRA_PASSWORD=cassandra
     ports:
       - "5000:5000"
     networks:
