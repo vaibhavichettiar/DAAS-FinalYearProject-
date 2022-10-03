@@ -9,7 +9,6 @@ export function Login()
 {
     const navigate = useNavigate();
     let {isAuth} = useSelector(state => state.login);
-    console.log(isAuth,"--")
     const dispatch = useDispatch();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");

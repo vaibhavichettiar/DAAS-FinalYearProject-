@@ -1,5 +1,5 @@
-const backendUtils = require("../common/backendUtils");
-const logger = require("../logger/logger");
+const backendUtils = require("../../common/backendUtils");
+const logger = require("../../logger/logger");
 const jwt = require("./jwt.js");
 const usersDetailsOperation = require('./userDetailOperation.js');
 const crypt = require('./crypt.js');
