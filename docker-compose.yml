@@ -34,6 +34,7 @@ services:
   cassandra:
     image: docker.io/bitnami/cassandra:latest
     user: root
+    container_name: cassandra
     ports:
       - '7000:7000'
       - '9042:9042'
@@ -51,6 +52,7 @@ services:
       - CASSANDRA_PASSWORD=cassandra
     networks:
       - daas
+
     
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
