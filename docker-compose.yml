@@ -36,7 +36,7 @@ services:
     user: root
     container_name: cassandra
     ports:
-      - '7000:7000'
+      # - '7000:7000'
       - '9042:9042'
     volumes:
       - ./cassandra/schema:/docker-entrypoint-initdb.d

@@ -15,6 +15,8 @@ let s3Stream = require('s3-upload-stream')(s3);
 let bucket = 'daas1';
 
 const dataUpload = async (req, res) => {
+    console.log("\n\n Yoooo coming here \n\n")
+    return null
     var form = formidable.IncomingForm();
     var fileName, dataSetName, fileLocation, fileSize;
     form.multiples = true;
