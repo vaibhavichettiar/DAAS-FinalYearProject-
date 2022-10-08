@@ -1,5 +1,9 @@
 {
     "kafka" : {
         "host": "localhost:2181"
+    },
+    
+    "cassandra" : {
+        "host" : "127.0.0.1"
     }
 }
