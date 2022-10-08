@@ -1,5 +1,6 @@
 from app.models.spark import sparkSession
 from app.models.cassandra import cassConn
+from app.models.cassandra import cassandraConnection
 from app.models.cassandra import KEYSPACE
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.functions import unix_timestamp
@@ -89,7 +90,7 @@ class preprocessingService:
         return query
 
     def getTableName(self):
-        timestr = time.strftime("%Y%m%d%H")
+        timestr = time.strftime("%Y%m%d%H%M")
         tablename = self.bucket + self.file + timestr
         renamedTableName = ''.join(letter for letter in tablename if letter.isalnum())
         return renamedTableName

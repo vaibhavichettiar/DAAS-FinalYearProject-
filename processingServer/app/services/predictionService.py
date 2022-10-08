@@ -1,6 +1,7 @@
 from app.models.s3 import s3Conn
 from app.models.cassandra import KEYSPACE
 from app.models.cassandra import cassConn
+from app.models.cassandra import cassandraConnection
 import pandas as pd
 import prophet
 from prophet import Prophet
@@ -24,8 +25,9 @@ class predictionService():
         # load model
         model = pickle.loads(body_string)
 
-        # Create dataframe with future dates
-        future = pd.DataFrame({'ds': futureDates})
+        # Create dataframe with future dates 
+        
+        future = pd.DataFrame({'ds': futureDates}) 
         forcastedSales = model.predict(future) 
         forcastedSales = forcastedSales[['ds', 'yhat']] 
 

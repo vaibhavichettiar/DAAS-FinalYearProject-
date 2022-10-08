@@ -1,5 +1,6 @@
 import os
 import logging
+import time
 from cassandra.io.libevreactor import LibevConnection
 from cassandra.cluster import Cluster
 from cassandra.policies import DCAwareRoundRobinPolicy
@@ -29,7 +30,8 @@ class cassandraConnection:
                     cassandraConnection.createTable(cassandraConnection.generateModelingTableQuery())
                     flag = False
                 except Exception as Argument:
-                    logger.error("Not able to connect to cassandra server. Reason: %s", Argument)
+                    logger.error("Not able to connect to cassandra server. Retrying after 10s. Reason: %s", Argument)
+                    time.sleep(10)
 
         
         return cassConn
@@ -49,4 +51,10 @@ class cassandraConnection:
             logger.info("Table created suceessfully for query: %s" , createTableQuery)
         except:
             logger.error("Unable to create table: %s", createTableQuery)
+
+    @staticmethod
+    def getCassConn():
+        if cassConn == None:
+            cassandraConnection.initCassandraConnection()
+        return cassConn
 
