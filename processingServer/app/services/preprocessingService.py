@@ -1,7 +1,8 @@
+from app.settings.setting import KEYSPACE
+from app.settings.setting import PROCESSINGTABLE
 from app.models.spark import sparkSession
 from app.models.cassandra import cassConn
 from app.models.cassandra import cassandraConnection
-from app.models.cassandra import KEYSPACE
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.functions import unix_timestamp
 from pyspark.sql import types, functions as F
@@ -99,7 +100,7 @@ class preprocessingService:
         return uuid.uuid1()
 
     def addProessingId(self, uuid, tablename):
-        stmt = cassConn.prepare("INSERT INTO " + KEYSPACE + ".processIds (id, tablename) VALUES (?, ?) IF NOT EXISTS")
+        stmt = cassConn.prepare("INSERT INTO " + KEYSPACE + "." + PROCESSINGTABLE + " (id, tablename) VALUES (?, ?) IF NOT EXISTS")
         cassConn.execute(stmt, [uuid, tablename])
     
 

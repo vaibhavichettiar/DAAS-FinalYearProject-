@@ -1,5 +1,6 @@
+from app.settings.setting import KEYSPACE
+from app.settings.setting import MODELINFOTABLE
 from app.models.s3 import s3Conn
-from app.models.cassandra import KEYSPACE
 from app.models.cassandra import cassConn
 from app.models.cassandra import cassandraConnection
 import pandas as pd
@@ -39,7 +40,7 @@ class predictionService():
         return parsedResults
 
     def getModelFileName(self, productId, processingId):
-        query = "SELECT id, productid, filename FROM " + KEYSPACE + ".models WHERE id=" + str(processingId) + " and productid=" + str(productId) + ";"
+        query = "SELECT id, productid, filename FROM " + KEYSPACE + "." + MODELINFOTABLE + " WHERE id=" + str(processingId) + " and productid=" + str(productId) + ";"
         try:
             results = cassConn.execute(query)
             return results.one().filename

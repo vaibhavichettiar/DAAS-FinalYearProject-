@@ -1,6 +1,8 @@
+from app.settings.setting import KEYSPACE
+from app.settings.setting import PROCESSINGTABLE
+from app.settings.setting import MODELINFOTABLE
 from app.models.spark import sparkSession
 from app.models.s3 import s3Conn
-from app.models.cassandra import KEYSPACE
 from app.models.cassandra import cassConn
 from app.models.cassandra import cassandraConnection
 import pandas as pd
@@ -34,7 +36,7 @@ class forcastModelService:
         return table_df
 
     def getTableName(self, processingId):
-        query = "SELECT id, tablename FROM " + KEYSPACE + ".processIds WHERE id=" + str(processingId)
+        query = "SELECT * FROM " + KEYSPACE + "." + PROCESSINGTABLE + " WHERE id=" + str(processingId)
         try:
             results = cassConn.execute(query)
             return results.one().tablename
@@ -72,7 +74,7 @@ class forcastModelService:
         return "model_" + str(productId) + ".pkl"
 
     def addProessingId(self, processingId, productId, modelFileName):
-        stmt = cassConn.prepare("INSERT INTO " + KEYSPACE + ".models (id, productid, filename) VALUES (?, ?, ?) IF NOT EXISTS")
+        stmt = cassConn.prepare("INSERT INTO " + KEYSPACE + "." + MODELINFOTABLE + "(id, productid, filename) VALUES (?, ?, ?) IF NOT EXISTS")
         cassConn.execute(stmt, [processingId, productId, modelFileName])
     
 
