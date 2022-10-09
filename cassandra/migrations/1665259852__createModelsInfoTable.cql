@@ -1,4 +1,4 @@
-create TABLE IF NOT EXISTS daas_data.modelsinfo (
+create TABLE daas_ks.modelsinfo (
     id UUID,
     productid int,
     filename text,
