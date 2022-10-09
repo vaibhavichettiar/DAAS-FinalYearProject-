@@ -5,6 +5,8 @@ from cassandra.cluster import Cluster
 from cassandra.policies import DCAwareRoundRobinPolicy
 from cassandra.auth import PlainTextAuthProvider
 from app.settings.setting import KEYSPACE
+from app.settings.setting import PROCESSINGTABLE
+from app.settings.setting import MODELINFOTABLE
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,11 +39,11 @@ class cassandraConnection:
 
     @staticmethod
     def generateProcessingTableQuery():
-        return "CREATE TABLE IF NOT EXISTS " + KEYSPACE + ".processIds(id UUID PRIMARY KEY, tablename text);"
+        return "CREATE TABLE IF NOT EXISTS " + KEYSPACE + "." + PROCESSINGTABLE + "(id UUID PRIMARY KEY, tablename text);"
 
     @staticmethod
     def generateModelingTableQuery():
-        return "CREATE TABLE IF NOT EXISTS " + KEYSPACE + ".models(id UUID, productid int, filename text, PRIMARY KEY (id, productid));"
+        return "CREATE TABLE IF NOT EXISTS " + KEYSPACE + "." + MODELINFOTABLE + "(id UUID, productid int, filename text, PRIMARY KEY (id, productid));"
 
     @staticmethod
     def createTable(createTableQuery):
