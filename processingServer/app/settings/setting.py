@@ -2,7 +2,7 @@
 DEBUG = True
 
 # Cassandra info 
-KEYSPACE="daas_data"
+KEYSPACE="daas_ks"
 PROCESSINGTABLE="processinginfo"
 MODELINFOTABLE="modelsinfo"
 
