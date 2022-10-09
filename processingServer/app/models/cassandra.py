@@ -1,14 +1,16 @@
 import os
 import logging
-from cassandra.io.libevreactor import LibevConnection
+import time
 from cassandra.cluster import Cluster
 from cassandra.policies import DCAwareRoundRobinPolicy
 from cassandra.auth import PlainTextAuthProvider
+from app.settings.setting import KEYSPACE
+from app.settings.setting import PROCESSINGTABLE
+from app.settings.setting import MODELINFOTABLE
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-KEYSPACE = "salesdata"
 cassConn = None
 class cassandraConnection:
     @staticmethod
@@ -21,26 +23,27 @@ class cassandraConnection:
                     node_ips = [os.environ['CASSANDRA_HOST']]
                     auth_provider = PlainTextAuthProvider(username='cassandra', password= os.environ['CASSANDRA_PASSWORD'])
                     cluster = Cluster(node_ips, port = 9042, protocol_version=4, auth_provider=auth_provider)
-                    cassConn = cluster.connect()
-                    cassConn.execute(""" CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-                    """ % KEYSPACE)
+                    #cassConn = cluster.connect()
+                    #cassConn.execute(""" CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+                    #""" % KEYSPACE)
                     cassConn = cluster.connect(keyspace=KEYSPACE)
                     cassandraConnection.createTable(cassandraConnection.generateProcessingTableQuery())
                     cassandraConnection.createTable(cassandraConnection.generateModelingTableQuery())
                     flag = False
                 except Exception as Argument:
-                    logger.error("Not able to connect to cassandra server. Reason: %s", Argument)
+                    logger.error("Not able to connect to cassandra server. Retrying after 10s. Reason: %s", Argument)
+                    time.sleep(10)
 
         
         return cassConn
 
     @staticmethod
     def generateProcessingTableQuery():
-        return "CREATE TABLE IF NOT EXISTS " + KEYSPACE + ".processIds(id UUID PRIMARY KEY, tablename text);"
+        return "CREATE TABLE IF NOT EXISTS " + KEYSPACE + "." + PROCESSINGTABLE + "(id UUID PRIMARY KEY, tablename text);"
 
     @staticmethod
     def generateModelingTableQuery():
-        return "CREATE TABLE IF NOT EXISTS " + KEYSPACE + ".models(id UUID, productid int, filename text, PRIMARY KEY (id, productid));"
+        return "CREATE TABLE IF NOT EXISTS " + KEYSPACE + "." + MODELINFOTABLE + "(id UUID, productid int, filename text, PRIMARY KEY (id, productid));"
 
     @staticmethod
     def createTable(createTableQuery):
@@ -49,4 +52,10 @@ class cassandraConnection:
             logger.info("Table created suceessfully for query: %s" , createTableQuery)
         except:
             logger.error("Unable to create table: %s", createTableQuery)
+
+    @staticmethod
+    def getCassConn():
+        if cassConn == None:
+            cassandraConnection.initCassandraConnection()
+        return cassConn
 
