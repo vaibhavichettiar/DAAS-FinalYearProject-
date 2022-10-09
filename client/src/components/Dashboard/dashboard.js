@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Content } from "./content";
-import "./style.scss";
 import { Toolbar } from "./toolbar";
 
-export function Dashboard() {
+function Dashboard() {
     return (
         <div className="dashboard">
             <Toolbar></Toolbar>
@@ -14,3 +13,5 @@ export function Dashboard() {
         </div>
     )
 }
+
+export default Dashboard;

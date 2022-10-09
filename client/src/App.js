@@ -1,8 +1,9 @@
 import './App.scss';
 import { BrowserRouter as Router, Routes } from "react-router-dom";
 import { Route } from "react-router-dom";
+import { Col, Row } from "react-bootstrap";
 import { Login, Register } from './components/Login/index';
-import { Dashboard } from './components/Dashboard/index';
+import Dashboard from './components/Dashboard/dashboard';
 
 function App() {
   return (

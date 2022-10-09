@@ -3,7 +3,7 @@ import { USER_LOGIN } from "../constants/userConstants";
 import Axios from 'axios';
 
 export const userLogin = (data) => (dispatch) =>{
-    Axios.post("http://localhost:5001/auth/login", data)
+    Axios.post("http://localhost:5001/api/login", data)
     .then((response) => {
         dispatch({
             type: USER_LOGIN,
