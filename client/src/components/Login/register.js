@@ -52,7 +52,7 @@ export function Register()
                     <div className="form-group">
                         <label htmlFor="password">Password</label>
                         <label type="text" name = "password" placeholder="password"/>
-                        <input type="text" name="password" placeholder="password" onChange={handlePassword}></input>
+                        <input type="password" name="password" placeholder="password" onChange={handlePassword}></input>
 
                     </div>
                     

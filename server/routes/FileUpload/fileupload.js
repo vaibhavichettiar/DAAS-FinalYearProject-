@@ -15,26 +15,10 @@ let s3Stream = require('s3-upload-stream')(s3);
 let bucket = 'daas1';
 
 const dataUpload = async (req, res) => {
-    console.log("\n\n Yoooo coming here \n\n")
-    return null
     var form = formidable.IncomingForm();
     var fileName, dataSetName, fileLocation, fileSize;
     form.multiples = true;
     form.uploadDir = path.join(path.dirname(__dirname), '../uploads');
-    // form.on('file',(field, file) => {
-    //     filePath = path.join(form.uploadDir, file.name);
-    //     fileSize = file.size;
-    //     fileParams = file.name.split('.');
-    //     dataSetName = fileParams[0];
-    //     fileNamePath = file.path + '.' + fileParams[1];
-    //     fileLocation = fileNamePath;
-    //     var hashedFileParts = file.path.split('\\');
-    //     fileName = hashedFileParts[hashedFileParts.length - 1];
-    //     fs.rename(file.path, fileNamePath, (err) => {
-    //         if (err) throw err;
-    //         console.log('Rename complete!');
-    //         });
-    // });
 
     form.on('error', function (err) {
         console.log('An error occured: \n' + err);
@@ -68,11 +52,9 @@ const dataUpload = async (req, res) => {
     }
 
     form.parse(req, function(err, fields, files) {
-        // fileName = files[''].name
-        // let metaData = {
-        //     "filename": 
-        // }
-        // console.log("files : ", files[''].name);
+        if (err) {
+            backendUtils.respond(res, 500, err);
+        }
         backendUtils.respond(res, 200, 'file uploaded successfully');
     });
 }

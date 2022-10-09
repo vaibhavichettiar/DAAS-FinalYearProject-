@@ -1,9 +1,11 @@
 import { applyMiddleware, combineReducers, createStore, compose } from "redux";
 import thunk from "redux-thunk";
 import { loginReducer } from "./reducers/loginReducer";
+import { dashboardReducer } from "./reducers/dashboardReducer";
 
 const appReducer = combineReducers({
-  login: loginReducer
+  login: loginReducer,
+  dashboard: dashboardReducer
 });
 
 const initialState = {
