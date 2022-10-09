@@ -76,4 +76,21 @@ JSON request Payload :
 }
 ```
 
+#### Time series models
+##### Prophet (Open sourced by Facebook) 
+
+Prophet is an additive regression model with a piecewise linear or logistic growth curve trend. It includes a yearly seasonal component modeled using Fourier series and a weekly seasonal component modeled using dummy variables. 
+Time series = Signal + Noise 
+
+Prophet model uses the trend lines as regressors in the model 
+
+When the data doesn’t fit to the one regressors then the trend is piecewise. broken in to different pieces of the data using knots. 
+
+User can specify knots or automatically chosen. 
+
+Trend can not be linear either. Hence there is logarithmic trend. 
+
+Seasonal Component : Fourier variables are used to account seasonal components. Designed to identify the seasonal events with weekly and yearly seasonal effects. 
+
+Holiday component : Point intervention variable. At certain day the sales goes high. Holiday variable is 0 and 1. Binary variable. 
  
