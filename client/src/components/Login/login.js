@@ -29,7 +29,7 @@ export function Login()
     }
         return (
         <div className="base-container">
-            {isAuth == true && navigate('/register') }
+            {isAuth == true && navigate('/dashboard') }
             <div className="header">LOGIN</div>
             <div className="content">
                 <div className="image">
@@ -44,7 +44,7 @@ export function Login()
                     <div className="form-group">
                         <label htmlFor="password">Password</label>
                         <label type="text" name = "password" placeholder="password"/>
-                        <input type="text" name ="password" placeholder="password" onChange={handlePassword} />
+                        <input type="password" name ="password" placeholder="password" onChange={handlePassword} />
                     </div>
                 </div>
             </div>
