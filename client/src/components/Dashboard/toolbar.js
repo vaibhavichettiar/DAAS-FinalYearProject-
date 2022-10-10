@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./style-toolbar.scss";
+import "./style-toolbar.css";
 
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';

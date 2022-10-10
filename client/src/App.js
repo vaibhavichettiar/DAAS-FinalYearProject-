@@ -1,4 +1,4 @@
-import './App.scss';
+import './App.css';
 import { BrowserRouter as Router, Routes } from "react-router-dom";
 import { Route } from "react-router-dom";
 import { Col, Row } from "react-bootstrap";
