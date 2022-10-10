@@ -27,8 +27,8 @@ class cassandraConnection:
                     #cassConn.execute(""" CREATE KEYSPACE IF NOT EXISTS %s WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
                     #""" % KEYSPACE)
                     cassConn = cluster.connect(keyspace=KEYSPACE)
-                    cassandraConnection.createTable(cassandraConnection.generateProcessingTableQuery())
-                    cassandraConnection.createTable(cassandraConnection.generateModelingTableQuery())
+                    #cassandraConnection.createTable(cassandraConnection.generateProcessingTableQuery())
+                    #cassandraConnection.createTable(cassandraConnection.generateModelingTableQuery())
                     flag = False
                 except Exception as Argument:
                     logger.error("Not able to connect to cassandra server. Retrying after 10s. Reason: %s", Argument)
