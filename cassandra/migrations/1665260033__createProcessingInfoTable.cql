@@ -1,4 +1,4 @@
-create TABLE IF NOT EXISTS daas_data.processinginfo (
+create TABLE daas_ks.processinginfo (
     id UUID PRIMARY KEY,
     tablename text
 );
