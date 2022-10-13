@@ -3,7 +3,9 @@ DEBUG = True
 
 # Cassandra info 
 KEYSPACE="daas_ks"
-PROCESSINGTABLE="processinginfo"
-MODELINFOTABLE="modelsinfo"
+DATASETMETADATA="dataset_metadata"
+MODELS="models"
+USERS="users"
+BUCKET="daas1"
 
 # AWS s3 keys 

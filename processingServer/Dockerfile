@@ -45,6 +45,10 @@ ENV SPARK_MASTER_PORT 7077
 ENV PYSPARK_PYTHON python3
 ENV JUPYTER_PORT 8888
 
+RUN mkdir -p ${SHARED_WORKSPACE}/certs
+
+COPY ./cassandra_truststore.jks ${SHARED_WORKSPACE}/certs
+
 RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-sts/1.11.375/aws-java-sdk-sts-1.11.375.jar -P $SPARK_HOME/jars/
 RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-s3/1.11.375/aws-java-sdk-s3-1.11.375.jar -P $SPARK_HOME/jars/
 RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-dynamodb/1.11.375/aws-java-sdk-dynamodb-1.11.375.jar -P $SPARK_HOME/jars/
