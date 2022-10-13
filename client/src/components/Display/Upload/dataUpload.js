@@ -1,5 +1,5 @@
 import React, {useState, useRef} from 'react';
-import './style.scss';
+import './style.css';
 import { uploadAction } from '../../../redux/actions/dashboardAction';
 import { useDispatch } from 'react-redux';
 

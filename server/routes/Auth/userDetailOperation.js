@@ -1,7 +1,7 @@
 const cassandra = require('cassandra-driver');
 const config = require('config');
 const cassandraConfig = config.get('cassandra');
-const client = new cassandra.Client(cassandraConfig);
+const { client } = require("./config/config");
 const { v4: uuidv4 } = require('uuid');
 
 const registerUser = async ( username, password) => {
