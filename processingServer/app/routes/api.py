@@ -1,9 +1,9 @@
 from app.app import app
 from app.models.spark import sparkSession
 from flask import request, json, jsonify
-from app.services.preprocessingService import preprocessingService
-from app.services.forcastModelService import forcastModelService
-from app.services.predictionService import predictionService
+from app.services.preprocessingService import PreprocessingService
+from app.services.trainModelService import TrainModelService
+from app.services.predictionService import PredictionService
 from app.exception.processingException import ProcessingException
 import time
 import asyncio
@@ -20,7 +20,7 @@ def home():
 def startPreprocessing():
 	try:
 		data = json.loads(request.data)
-		preprocessFileObj = preprocessingService(data["Bucket"], data["FileName"])
+		preprocessFileObj = PreprocessingService(data["userId"], data["datasetId"])
 		return preprocessFileObj.processFile()
 	except Exception as e:
 		raise ProcessingException(e.message, e.status_code) 
@@ -29,10 +29,9 @@ def startPreprocessing():
 def trainModel():
 	try:
 		logger.info("In the trainModel")
-		processingId = json.loads(request.data)['processingId']
-		bucketName = json.loads(request.data)['bucketName']
-		train(processingId, bucketName)
-		return jsonify(message='Model training started for processingID: ' + processingId)
+		data = json.loads(request.data)
+		train(data["userId"], data["datasetId"])
+		return jsonify(message='Model training started for datasetId: ' + data["datasetId"])
 	except Exception as e:
 		raise ProcessingException(e.message, e.status_code)
 
@@ -40,17 +39,18 @@ def trainModel():
 def predictSale():
 	try:
 		data = json.loads(request.data)
-		predictionServiceObj = predictionService()
-		return predictionServiceObj.predict(data['dates'], data['productId'], data['bucketName'], data['processingId'])
+		predictionServiceObj = PredictionService()
+		return predictionServiceObj.predict(data['dates'], data['productId'], data['userId'], data['datasetId'])
 	except Exception as e:
-		raise ProcessingException(e.message, e.status_code)
+		logger.exception(e)
+		raise ProcessingException(str(e), e.status_code)
 
-def train(processingId, bucketName):
+def train(userId, datasetId):
 	try:
-		forcastModelServiceObj = forcastModelService()
-		forcastModelServiceObj.trainModel(processingId, bucketName)
+		trainModelServiceObj = TrainModelService()
+		trainModelServiceObj.trainModel(userId, datasetId)
 	except Exception as e:
-		raise ProcessingException(e.message, e.status_code)
+		raise ProcessingException(str(e))
 
 
 @app.errorhandler(ProcessingException)
