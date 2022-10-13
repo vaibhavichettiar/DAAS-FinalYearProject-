@@ -1,16 +1,24 @@
 ### Processing Server 
 
 #### Run Processing Server 
-- Create .env file and put AWS s3 credentials with below key : 
-
-AWS_ACCESS_KEY=
-
+- Create .env file under the /processingServer folder and add below key values: 
+```
+AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
+AWS_REGION=
+CASS_USERNAME=
+CASS_PASSWORD=
+CASSANDRA_KEYSTORE_PASSWORD=
+CERTIFICATE_FILE_PATH=
+```
+- Make sure to have **cassandra_truststore.jks** and **sf-class2-root.crt** under the /processingServer folder. 
 
 #### Components: 
-- Spark-master : 
-web UI URL : localhost:8080
-spark master port : localhost:7077
+- Spark-master :
+
+    web UI URL : localhost:8080
+
+    spark master port : localhost:7077
 
 - Spark-worker 
 web UI URL : localhost:8081
@@ -19,13 +27,30 @@ web UI URL : localhost:8081
 URL : localhost:5000 
 
 #### Database Tables interected by flask server 
-- modelsinfo : 
-data : store processingId and modelfile name information.
-usage : to fetch model pkl file for prediction purpose. 
 
-- processinginfo:
-data : unique processingId (UUID) and tablename (actual user's dataset stored in cassandra) 
-usage: to fetch data from correct dataset to train model. 
+- dataset_metadata:
+
+    datasetId 
+
+    userId 
+
+    name : dataset name stored in AWS s3 
+
+    table_name : table name stored in cassandra 
+
+    job_type : PROCESSING / TRAINING 
+
+    job_status : RUNNING(0) / SUCCESS(1) / FAILED(2) 
+
+
+- models :  
+
+    dataset_id
+
+    product_id : Each product had different trained model stored in AWS s3. 
+
+    model_filename
+
 
 #### backend API 
 - Processing data 
@@ -34,14 +59,13 @@ URL : http://localhost:5000/processing
 Type : POST 
 JSON request Payload : 
 {
-    "FileName" : <file name uplaoded to AWS s3 bucket>,
-    "Bucket" : <bucket name where given file is uploaded> 
+    "userId" : <userID>,
+    "datasetId" : <datasetID>
 }
 
 Successful response : 200 OK 
 {
-    "processingId" : <processingID>,
-    "message" : "Processing completed for file: <filename>" 
+    "message" : "Processing completed for dataset: <datasetID>" 
 }
 
 ```
@@ -52,13 +76,13 @@ URL : http://localhost:5000/trainModel
 Type : POST 
 JSON request Payload : 
 {
-    "processingId" : <ProcessingID>,
-    "bucketName" : <AWS S3 bucket where trained model weights needs to be stored>
+    "userId" : <userID>,
+    "datasetId" : <datasetID>
 }
 
 Successful response : 200 OK 
 {
-    "message" : "Model training started for processingID:: <processingID>" 
+    "message" : "Model training started for datasetID: <datasetID>" 
 }
 
 ```
@@ -71,8 +95,25 @@ JSON request Payload :
 {
     "dates" : <Time range>,
     "productId" : <productID>,
-    "bucketName" : <AWS S3 bucket where trained model weights needs to be stored>,
-    "processingId" : <processingID> 
+    "userId" : <userID>,
+    "datasetId" : <datasetID>
+}
+
+Successful response : 200 OK
+{
+    "columns": [
+        "date",
+        "predicted sales"
+    ],
+    "data": [
+        [
+            1576972800000,
+            292815.4097602503
+        ]
+    ],
+    "index": [
+        0
+    ]
 }
 ```
 
