@@ -8,7 +8,6 @@ require('dotenv').config();
 const region = process.env.AWS_REGION;
 const accessKey = process.env.AWS_ACCESS_KEY_ID;
 const secretKey = process.env.AWS_SECRET_ACCESS_KEY;
-console.log("\n\n",region,accessKey,secretKey)
 
 const auth = new sigV4.SigV4AuthProvider({
   region: region,
@@ -35,6 +34,6 @@ const client = new cassandra.Client({
 
 module.exports = {
   client,
-  aws_access_key: process.env.AWS_ACCESS_KEY,
-  aws_secret_key: process.env.AWS_SECRET_KEY
+  aws_access_key: process.env.AWS_ACCESS_KEY_ID,
+  aws_secret_key: process.env.AWS_SECRET_ACCESS_KEY
 };
