@@ -1,12 +1,13 @@
 const cassandra = require('cassandra-driver');
 const config = require('config');
 const cassandraConfig = config.get('cassandra');
-const { client } = require("./config/config");
+const { client } = require("../../config/config");
 const { v4: uuidv4 } = require('uuid');
 
 const registerUser = async ( username, password) => {
     const query = `insert into daas_ks.users (id,name,password) values(?,?,?);`;
-    client.execute(query,[uuidv4(),username,password]);
+    client.execute(query, [uuidv4(), username, password],
+        { consistency: cassandra.types.consistencies.localQuorum })
 }
 
 const getPasswordForUsername = async (username) => {

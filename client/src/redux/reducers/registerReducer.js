@@ -1,7 +1,7 @@
 import { REGISTER_LOGIN } from "../constants/userConstants";
 
 const initialState = {
-    isAuth: false
+    isRegistered: false
 }
 
 export const registerReducer = (state = initialState, action) => {
@@ -9,6 +9,7 @@ export const registerReducer = (state = initialState, action) => {
       case REGISTER_LOGIN:
         return {
           ...state,
+          isRegistered: true
         };
         default:
       return state;

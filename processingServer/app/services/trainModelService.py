@@ -1,9 +1,9 @@
 from app.settings.setting import KEYSPACE
-from app.settings.setting import PROCESSINGTABLE
-from app.settings.setting import MODELINFOTABLE
+from app.settings.setting import DATASETMETADATA
+from app.settings.setting import MODELS
+from app.settings.setting import BUCKET
 from app.models.spark import sparkSession
 from app.models.s3 import s3Conn
-from app.models.cassandra import cassConn
 from app.models.cassandra import cassandraConnection
 from app.exception.processingException import ProcessingException
 import pandas as pd
@@ -16,11 +16,11 @@ import uuid
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class forcastModelService:
+class TrainModelService:
 
-    def trainModel(self, processingId, bucketname):
+    def trainModel(self, userId, datasetId):
         try:
-            datasetTablename = self.getTableName(processingId)
+            datasetTablename = self.getTableName(datasetId)
 
             dataframe = self.load_and_get_table_df(KEYSPACE, datasetTablename)
             logger.info("Loaded %s successfully", datasetTablename)
@@ -31,9 +31,10 @@ class forcastModelService:
             logger.info("Data types are converted successfully")
 
             # Do multipart time series modeling 
-            self.multipartModeling(dataframe, bucketname, processingId)
+            self.multipartModeling(dataframe, userId, datasetId)
+            self.updateJobStatus(datasetTablename, 1, datasetId)
         except Exception as e:
-            logger.error(e)
+            logger.exception(e)
             raise ProcessingException("Error ocuured while training model:" + str(e), status_code=500)
 
     def load_and_get_table_df(self, keys_space_name, table_name):
@@ -44,14 +45,10 @@ class forcastModelService:
             logger.error(e)
             raise Exception("Unable to load table :" +  table_name)
 
-    def getTableName(self, processingId):
-        query = "SELECT * FROM " + KEYSPACE + "." + PROCESSINGTABLE + " WHERE id=" + str(processingId)
-        try:
-            results = cassConn.execute(query)
-            return results.one().tablename
-        except:
-            logger.error("Not find the tablename for processingID: %s", processingId)
-            raise ProcessingException("Not find the tablename for processingID: " + processingId + " Message: " + str(e), status_code=404) 
+    def getTableName(self, datasetId):
+        query = "SELECT table_name FROM " + KEYSPACE + "." + DATASETMETADATA + " WHERE id=?"
+        results = cassandraConnection.getSelectQueryResults(query, [uuid.UUID(str(datasetId))])
+        return results.one().table_name
 
     def renamedColumn(self, dataframe):
         dataframe.columns = ['id', 'date', 'storeid', 'sales']
@@ -68,7 +65,7 @@ class forcastModelService:
             logger.error(e)
             raise Exception("Unable to convert Data type for the data.")
 
-    def multipartModeling(self, dataframe, bucketname, processingId):
+    def multipartModeling(self, dataframe, userId, datasetId):
         try:
             for productId in pd.unique(dataframe['storeid']):
                 dataframe = dataframe[dataframe['storeid'] == productId] 
@@ -77,25 +74,25 @@ class forcastModelService:
                 model = Prophet(interval_width=0.95)
                 model.fit(dataframe)
                 pickle_byte_obj = pickle.dumps(model)
-                modelFileName = self.getModelFileName(productId, processingId)
-                s3Conn.Object(bucketname , modelFileName).put(Body=pickle_byte_obj)
-                self.addProessingId(uuid.UUID(str(processingId)), productId, modelFileName)
+                modelFileName = self.getModelFileName(datasetId, productId)
+                s3Conn.Object(BUCKET , userId + "/models/" + modelFileName).put(Body=pickle_byte_obj)
+                self.insertModelFileName(datasetId, productId, modelFileName)
                 logger.info("Successfully trained model for productId %s and model file name %s", str(productId), modelFileName)
                 break
         except Exception as e:
-            logger.error("Error while training prophet model with processingId: %s" , processingId)
-            raise ProcessingException("Error while training prophet model with processingId: " + processingId + " Message: " + str(e), status_code=500)
+            logger.exception("Error while training prophet model with datasetId: %s" , datasetId)
+            raise ProcessingException("Error while training prophet model with datasetId: " + datasetId + " Message: " + str(e), status_code=500)
 
-    def getModelFileName(self, productId, processingId):
-        return "model_" + str(processingId) + "_" + str(productId) + ".pkl"
+    def getModelFileName(self, datasetId, productId):
+        return "model_" + str(datasetId) + "_" + str(productId) + ".pkl"
 
-    def addProessingId(self, processingId, productId, modelFileName):
-        try:
-            stmt = cassConn.prepare("INSERT INTO " + KEYSPACE + "." + MODELINFOTABLE + "(id, productid, filename) VALUES (?, ?, ?) IF NOT EXISTS")
-            cassConn.execute(stmt, [processingId, productId, modelFileName])
-        except Exception as e:
-            logger.error("Error while inserting processing info for processingId: %s" , processingId)
-            raise ProcessingException("Error while inserting processing info for processingId: " + processingId + " Message: " + str(e), status_code=500)
+    def insertModelFileName(self, datasetId, productId, modelFileName):
+        query = "INSERT INTO " + KEYSPACE + "." + MODELS + "(dataset_id, product_id, model_filename) VALUES (?, ?, ?) IF NOT EXISTS"
+        cassandraConnection.updateTableQuery(query, [uuid.UUID(str(datasetId)), productId, modelFileName])
     
+    def updateJobStatus(self, tableName, job_status, datasetId):
+        query = "UPDATE " + KEYSPACE + "." + DATASETMETADATA + " SET  table_name = ? , job_status = ? WHERE id = ? IF EXISTS"
+        cassandraConnection.updateTableQuery(query, [tableName, job_status, uuid.UUID(str(datasetId))])
+
 
 

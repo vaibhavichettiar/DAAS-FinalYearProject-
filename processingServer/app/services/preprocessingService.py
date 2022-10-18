@@ -1,7 +1,7 @@
 from app.settings.setting import KEYSPACE
-from app.settings.setting import PROCESSINGTABLE
+from app.settings.setting import DATASETMETADATA
+from app.settings.setting import BUCKET
 from app.models.spark import sparkSession
-from app.models.cassandra import cassConn
 from app.models.cassandra import cassandraConnection
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.functions import unix_timestamp
@@ -17,14 +17,17 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class preprocessingService:
-    def __init__(self, bucket, file):
-        self.file = file
-        self.bucket = bucket
+class PreprocessingService:
+    def __init__(self, userId, datasetId):
+        self.userId = userId
+        self.datasetId = datasetId
     
     def processFile(self):
         try:
-            dataFrame = sparkSession.read.option("header", "true").csv("s3a://" + self.bucket + "/" + self.file)
+
+            datasetName = self.getDatasetName()
+            dataFrame = sparkSession.read.option("header", "true").csv("s3a://" + BUCKET + "/" + self.userId + "/" + datasetName)
+            
             # add primary column with id 
             dataFrame = dataFrame.withColumn("id", monotonically_increasing_id())
 
@@ -33,19 +36,22 @@ class preprocessingService:
             dataFrame = self.changeDataTypes(dataFrame)
 
             # Create table query to push data in to the cassandra db
-            tableName = self.getTableName() 
-            query = self.createTableQuery(dataFrame, tableName)
-            cassConn.execute(query)
+            tableName = self.convertCSVDataToTable(dataFrame)
+
+            # Hack: wait for 15s before AWS Keyspace generate the table
+            time.sleep(15)
 
             # publish data to the cassandra db 
             dataFrame.write.format('org.apache.spark.sql.cassandra').mode('append').options(table=tableName, keyspace=KEYSPACE).save()
+            logger.info("Uploaded data successfully")
+            
+            # update processing job status with sucessful. 
+            self.updateJobStatus(tableName, 1)
 
-            uuid = self.getUUID()
-            self.addProessingId(uuid, tableName)
-            return jsonify(processingId=uuid , message='Processing completed for file: ' + self.file)
+            return jsonify(message='Processing completed for dataset: ' + self.datasetId)
         except Exception as e:
-            logger.error(e)
-            raise ProcessingException("Error Occured while processing File. Reason : " + str(e), status_code=500)
+            logger.exception(e)
+            raise ProcessingException("Error Occured while processing dataset. Reason : " + str(e), status_code=500)
 
     def jsonifyDataFrame(self, dataframe):
         return dataframe.toJSON().first()
@@ -107,24 +113,27 @@ class preprocessingService:
             raise ProcessingException("Problem occurred while generating table query", status_code=500)
 
     def getTableName(self):
-        timestr = time.strftime("%Y%m%d%H%M")
-        tablename = self.bucket + self.file + timestr
-        renamedTableName = ''.join(letter for letter in tablename if letter.isalnum())
+        tableName = "data" + str(self.datasetId)
+        renamedTableName = ''.join(letter if letter.isalnum() else '_' for letter in tableName)
         return renamedTableName
 
     def getUUID(self):
-        return uuid.uuid1()
+        return uuid.uuid4()
 
-    def addProessingId(self, uuid, tablename):
-        try:
-            stmt = cassConn.prepare("INSERT INTO " + KEYSPACE + "." + PROCESSINGTABLE + " (id, tablename) VALUES (?, ?) IF NOT EXISTS")
-            cassConn.execute(stmt, [uuid, tablename])
-        except Exception as e:
-            logger.error(e)
-            raise ProcessingException("Problem occurred while inserting processingId. Reason: " + str(e), status_code=500)
-    
+    def getDatasetName(self):
+        query = "SELECT name FROM " + KEYSPACE + "." + DATASETMETADATA + " WHERE id=?"
+        results = cassandraConnection.getSelectQueryResults(query, [uuid.UUID(str(self.datasetId))])
+        return results.one().name
 
+    def updateJobStatus(self, tableName, job_status):
+        query = "UPDATE " + KEYSPACE + "." + DATASETMETADATA + " SET  table_name = ? , job_status = ? WHERE id = ? IF EXISTS"
+        cassandraConnection.updateTableQuery(query, [tableName, job_status, uuid.UUID(self.datasetId)])
 
+    def convertCSVDataToTable(self, dataFrame):
+        tableName = self.getTableName() 
+        query = self.createTableQuery(dataFrame, tableName)
+        cassandraConnection.createTable(query)
+        return tableName
 
 
 

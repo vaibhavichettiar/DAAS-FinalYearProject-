@@ -16,6 +16,8 @@ services:
       - "5001:5001"
     networks:
       - daas
+    links:
+      - "processingServer:flaskserver"
     volumes:
       - ./server:/295B/server
     
@@ -129,18 +131,14 @@ services:
     image: flaskserver
     container_name: flaskserver
     depends_on:
-      - cassandra
       - spark-master
-    environment:
-      - CASSANDRA_HOST=cassandra
-      - CASSANDRA_PASSWORD=cassandra
     ports:
       - "5000:5000"
     networks:
       - daas
     volumes:
       - ./processingServer:/usr/bin/spark-3.1.2-bin-hadoop3.2/295B/processingServer
-            
+
 volumes:
   cassandra_data:
     driver: local
