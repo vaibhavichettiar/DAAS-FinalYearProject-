@@ -16,6 +16,8 @@ services:
       - "5001:5001"
     networks:
       - daas
+    links:
+      - "processingServer:flaskserver"
     volumes:
       - ./server:/295B/server
     

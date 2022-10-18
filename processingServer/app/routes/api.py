@@ -28,7 +28,6 @@ def startPreprocessing():
 @app.route('/trainModel', methods=['POST'])
 def trainModel():
 	try:
-		logger.info("In the trainModel")
 		data = json.loads(request.data)
 		train(data["userId"], data["datasetId"])
 		return jsonify(message='Model training started for datasetId: ' + data["datasetId"])
