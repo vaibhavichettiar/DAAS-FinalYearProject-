@@ -4,7 +4,6 @@ var kafka = require('kafka-node');
 var config = require('./config/config.json');
 const cors = require('cors');
 const route = require('./routes/routes.js');
-const { client } = require("./config/config");
 app.use(express.json())
 
 //Do Not Remove: Might use for presentation
@@ -38,6 +37,6 @@ app.get('/', (req, res) => {
 app.listen(5001, () => {
     console.log("my server is running on port 5001");
     
-    //Do Not Remove: Might use of presentation
+    //Do Not Remove: Might use for presentation
     // kafka_consumer.consumer();
 })
