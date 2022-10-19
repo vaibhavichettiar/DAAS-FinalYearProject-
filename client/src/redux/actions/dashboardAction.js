@@ -1,9 +1,10 @@
 import { UPLOAD_DATASET, USER_DETAILS, TABLE_DATA, SELECTED_DATA } from "../constants/userConstants";
 
 import Axios from 'axios';
+import { ipAddress } from "../../config";
 
 export const uploadAction = (data) => (dispatch) =>{
-    Axios.post("http://localhost:5001/api/fileUpload", data)
+    Axios.post(ipAddress+"/api/fileUpload", data)
     .then((response) => {
         dispatch({
             type: UPLOAD_DATASET,
@@ -13,7 +14,7 @@ export const uploadAction = (data) => (dispatch) =>{
 }
 
 export const getUserDetails = (data) => (dispatch) =>{
-    Axios.get("http://localhost:5001/api/userProfile", {
+    Axios.get(ipAddress+"/api/userProfile", {
         params: data
     })
     .then((response) => {
@@ -25,7 +26,7 @@ export const getUserDetails = (data) => (dispatch) =>{
 }
 
 export const getTableData = (data) => (dispatch) =>{
-    Axios.get("http://localhost:5001/api/tables", {
+    Axios.get(ipAddress+"/api/tables", {
         params: data
     })
     .then((response) => {

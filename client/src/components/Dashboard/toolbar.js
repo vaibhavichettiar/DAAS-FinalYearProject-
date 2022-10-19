@@ -6,7 +6,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { useSelector, useDispatch } from "react-redux";
 import { getUserDetails, getSelectedDataset } from "../../redux/actions/dashboardAction";
 import Axios from 'axios';
-
+import { ipAddress } from "../../config";
 
 export function Toolbar() {
     let {datasetDetails} = useSelector(state => state.dashboard.userDetails);
@@ -18,7 +18,7 @@ export function Toolbar() {
             let data = {
                 "username": "karthik"
             }
-            const response = await Axios.get("http://localhost:5001/api/userProfile", {
+            const response = await Axios.get(ipAddress+"/api/userProfile", {
                 params: data
             }, (err, res) => {
                 if (err) {
