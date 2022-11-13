@@ -20,6 +20,8 @@ server/.env
 .env.test.local
 .env.production.local
 *.pyc
+*.crt
+*.jks
 
 npm-debug.log*
 yarn-debug.log*
