@@ -17,6 +17,17 @@ const tabularData = async (req, res) => {
             backendUtils.respond(res,500,"Database empty")
             return;
         }
+        // Sort the result basis of the date
+        result.rows.sort(function(a, b) {
+            if(a['date']['year'] == b['date']['year']){
+                if(a['date']['month'] == b['date']['month']){
+                    return a['date']['day'] - b['date']['day'];
+                }
+                return a['date']['month'] - b['date']['month'];
+            }
+            return a['date']['year'] - b['date']['year'];
+        });
+        
         backendUtils.respond(res,200,result.rows)
         return
     });
