@@ -19,9 +19,9 @@ const respondMessage = (res, status, message) => {
     respond(res, status, {message});
 };
 
-const sendRequest = async (res, endPoint, payload) => {
+const sendRequest = async (res, method, endPoint, payload) => {
     var options = {
-        method: 'POST',
+        method: method,
         uri: 'http://flaskserver:5000/' + endPoint,
         body: payload,
         json: true

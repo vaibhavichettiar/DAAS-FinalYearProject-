@@ -34,12 +34,12 @@ def trainModel():
 	except Exception as e:
 		raise ProcessingException(e.message, e.status_code)
 
-@app.route('/forcastSale', methods=['POST'])
+@app.route('/predict', methods=['GET'])
 def predictSale():
 	try:
 		data = json.loads(request.data)
 		predictionServiceObj = PredictionService()
-		return predictionServiceObj.predict(data['dates'], data['productId'], data['userId'], data['datasetId'])
+		return predictionServiceObj.predict(data['startDate'], data['endDate'], data['productId'], data['userId'], data['datasetId'])
 	except Exception as e:
 		logger.exception(e)
 		raise ProcessingException(str(e), e.status_code)
