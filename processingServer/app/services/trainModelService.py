@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class TrainModelService:
 
-    def trainModel(self, userId, datasetId):
+    def trainModel(self, userId, datasetId, timeColumn, targetColumn, categoryColumn):
         try:
             datasetTablename = self.getTableName(datasetId)
 
@@ -27,11 +27,11 @@ class TrainModelService:
 
             dataframe = dataframe.toPandas()
             #dataframe = self.renamedColumn(dataframe)
-            dataframe = self.convertDataType(dataframe)
+            dataframe = self.convertDataType(dataframe, timeColumn, targetColumn, categoryColumn)
             logger.info("Data types are converted successfully")
 
             # Do multipart time series modeling 
-            self.multipartModeling(dataframe, userId, datasetId)
+            self.multipartModeling(dataframe, userId, datasetId, timeColumn, targetColumn, categoryColumn)
             self.updateJobStatus(datasetTablename, 1, datasetId)
         except Exception as e:
             logger.exception(e)
@@ -54,45 +54,55 @@ class TrainModelService:
         dataframe.columns = ['id', 'date', 'storeid', 'sales']
         return dataframe
 
-    def convertDataType(self, dataframe):
+    def convertDataType(self, dataframe, timeColumn, targetColumn, categoryColumn):
         try:
-            dataframe["sales"] = dataframe.sales.astype(float)
-            dataframe["storeid"] = dataframe.storeid.astype(int)
-            dataframe['date'] = pd.to_datetime(dataframe['date'])
-            dataframe = dataframe.sort_values(by='date')
+            dataframe[targetColumn] = dataframe[targetColumn].astype(float)
+            if categoryColumn is not None:
+                dataframe[categoryColumn] = dataframe[categoryColumn].astype(int)
+            dataframe[timeColumn] = pd.to_datetime(dataframe[timeColumn])
+            dataframe = dataframe.sort_values(by=timeColumn)
             return dataframe
         except Exception as e:
             logger.error(e)
             raise Exception("Unable to convert Data type for the data.")
 
-    def multipartModeling(self, dataframe, userId, datasetId):
+    def multipartModeling(self, dataframe, userId, datasetId, timeColumn, targetColumn, categoryColumn):
         try:
-            for productId in pd.unique(dataframe['storeid']):
-                dataframe = dataframe[dataframe['storeid'] == productId] 
-                dataframe = dataframe[['date', 'sales']]
-                dataframe.columns = ['ds', 'y']
-                model = Prophet(interval_width=0.95)
-                model.fit(dataframe)
-                pickle_byte_obj = pickle.dumps(model)
-                modelFileName = self.getModelFileName(datasetId, productId)
-                s3Conn.Object(BUCKET , userId + "/models/" + modelFileName).put(Body=pickle_byte_obj)
-                self.insertModelFileName(datasetId, productId, modelFileName)
-                logger.info("Successfully trained model for productId %s and model file name %s", str(productId), modelFileName)
-                break
+            if categoryColumn is None:
+                pickle_byte_obj = self.trainUnivariateModel(dataframe, timeColumn, targetColumn)
+                modelFileName = self.uploadModelFile(userId, datasetId, 0, pickle_byte_obj)
+            else: 
+                for categoryId in pd.unique(dataframe[categoryColumn]):
+                    dataframe = dataframe[dataframe[categoryColumn] == categoryId] 
+                    pickle_byte_obj = self.trainUnivariateModel(dataframe, timeColumn, targetColumn)
+                    modelFileName = self.uploadModelFile(userId, datasetId, categoryId, pickle_byte_obj)
+                    break
         except Exception as e:
             logger.exception("Error while training prophet model with datasetId: %s" , datasetId)
             raise ProcessingException("Error while training prophet model with datasetId: " + datasetId + " Message: " + str(e), status_code=500)
 
-    def getModelFileName(self, datasetId, productId):
-        return "model_" + str(datasetId) + "_" + str(productId) + ".pkl"
+    def getModelFileName(self, datasetId, categoryId):
+        return "model_" + str(datasetId) + "_" + str(categoryId) + ".pkl"
 
-    def insertModelFileName(self, datasetId, productId, modelFileName):
+    def insertModelFileName(self, datasetId, categoryId, modelFileName):
         query = "INSERT INTO " + KEYSPACE + "." + MODELS + "(dataset_id, product_id, model_filename) VALUES (?, ?, ?) IF NOT EXISTS"
-        cassandraConnection.updateTableQuery(query, [uuid.UUID(str(datasetId)), productId, modelFileName])
+        cassandraConnection.updateTableQuery(query, [uuid.UUID(str(datasetId)), categoryId, modelFileName])
     
     def updateJobStatus(self, tableName, job_status, datasetId):
         query = "UPDATE " + KEYSPACE + "." + DATASETMETADATA + " SET  table_name = ? , job_status = ? WHERE id = ? IF EXISTS"
         cassandraConnection.updateTableQuery(query, [tableName, job_status, uuid.UUID(str(datasetId))])
-
-
+    
+    def trainUnivariateModel(self, dataframe, timeColumn, targetColumn):
+        dataframe = dataframe[[timeColumn, targetColumn]]
+        dataframe.columns = ['ds', 'y']
+        model = Prophet(interval_width=0.95)
+        model.fit(dataframe)
+        pickle_byte_obj = pickle.dumps(model)
+        return pickle_byte_obj
+    
+    def uploadModelFile(self, userId, datasetId, categoryId, pickle_byte_obj):
+        modelFileName = self.getModelFileName(datasetId, categoryId)
+        s3Conn.Object(BUCKET , userId + "/models/" + modelFileName).put(Body=pickle_byte_obj)
+        self.insertModelFileName(datasetId, categoryId, modelFileName)
+        logger.info("Successfully trained model for categoryId %s and model file name %s", str(categoryId), modelFileName)
 
