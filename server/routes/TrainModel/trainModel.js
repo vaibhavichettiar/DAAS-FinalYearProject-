@@ -10,7 +10,7 @@ const trainModel = async (req, res) => {
         datasetId : datasetId
     }
 
-    backendUtils.sendRequest(res, "trainModel", payload)
+    backendUtils.sendRequest(res, "POST", "trainModel", payload)
 }
 
 module.exports = {

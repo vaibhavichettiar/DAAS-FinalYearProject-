@@ -51,6 +51,7 @@ class PreprocessingService:
             return jsonify(message='Processing completed for dataset: ' + self.datasetId)
         except Exception as e:
             logger.exception(e)
+            self.updateJobStatus("", 2)
             raise ProcessingException("Error Occured while processing dataset. Reason : " + str(e), status_code=500)
 
     def jsonifyDataFrame(self, dataframe):

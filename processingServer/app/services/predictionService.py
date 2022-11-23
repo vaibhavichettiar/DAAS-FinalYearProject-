@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class PredictionService():
 
-    def predict(self, futureDates, productId, userId, datasetId):
+    def predict(self, startDate, endDate, productId, userId, datasetId):
         try:
             modelFilename = self.getModelFileName(productId, datasetId)
             logger.info("ModelFilename: %s", modelFilename)
@@ -29,16 +29,18 @@ class PredictionService():
             # load model
             model = pickle.loads(body_string)
 
+            # Create list of future dates from start and end date
+            futureDates = self.createFutureDatesList(startDate, endDate)
             # Create dataframe with future dates 
-            
             future = pd.DataFrame({'ds': futureDates}) 
             forcastedSales = model.predict(future) 
             forcastedSales = forcastedSales[['ds', 'yhat']] 
 
             forcastedSales.columns = ['date', 'predicted sales']
-
-            result = forcastedSales.to_json(orient="split")
+            forcastedSales['date'] = forcastedSales['date'].dt.strftime('%Y-%m-%d')
+            result = forcastedSales.to_json(orient="table", double_precision=3, index=False)
             parsedResults = json.loads(result)
+            parsedResults = json.dumps(parsedResults["data"])
 
             return parsedResults
         except Exception as e:
@@ -49,3 +51,7 @@ class PredictionService():
         query = "SELECT model_filename FROM " + KEYSPACE + "." + MODELS + " WHERE dataset_id=? and product_id=?"
         results = cassandraConnection.getSelectQueryResults(query, [uuid.UUID(str(datasetId)), productId])
         return results.one().model_filename
+
+    def createFutureDatesList(self, startDate, endDate):
+        futureDates = pd.date_range(start=startDate,end=endDate).to_pydatetime().tolist()
+        return futureDates
