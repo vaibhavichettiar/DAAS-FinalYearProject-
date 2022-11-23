@@ -48,6 +48,8 @@ class PredictionService():
             raise ProcessingException("Error ocurred while forcasting data. Reason: " + str(e), status_code=500) 
 
     def getModelFileName(self, productId, datasetId):
+        if productId is None:
+            productId = 0
         query = "SELECT model_filename FROM " + KEYSPACE + "." + MODELS + " WHERE dataset_id=? and product_id=?"
         results = cassandraConnection.getSelectQueryResults(query, [uuid.UUID(str(datasetId)), productId])
         return results.one().model_filename
