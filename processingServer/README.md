@@ -72,12 +72,15 @@ Successful response : 200 OK
 
 - Train Model  
 ```
-URL : http://localhost:5000/trainModel
+URL : http://localhost:5001/api/train
 Type : POST 
 JSON request Payload : 
 {
     "userId" : <userID>,
-    "datasetId" : <datasetID>
+    "datasetId" : <datasetID>,
+    "timeColumn" : <date column name>,
+    "targetColumn" : <target column name>,
+    "categoryColumn" : <category vise modeling or pass null>
 }
 
 Successful response : 200 OK 
