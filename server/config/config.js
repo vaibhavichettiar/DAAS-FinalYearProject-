@@ -18,7 +18,7 @@ const auth = new sigV4.SigV4AuthProvider({
 const host = 'cassandra.' + region + '.amazonaws.com'
 const sslOptions = {
     ca: [
-        fs.readFileSync(__dirname + '\\..\\sf-class2-root.crt')
+      fs.readFileSync(__dirname + '\/..\/sf-class2-root.crt')
     ],
     host: host,
     rejectUnauthorized: true

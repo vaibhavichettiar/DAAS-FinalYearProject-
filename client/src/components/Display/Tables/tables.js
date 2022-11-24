@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import TabularData from './tabularData';
 import './style.css';
 import Axios from 'axios';
+import {ipAddress} from '../../../config'
 
 function Tables() {
     let { userid } = useSelector(state => state.dashboard.userDetails);
@@ -18,7 +19,7 @@ function Tables() {
                 "datasetid": datasetid
             }
             console.log("data = ", data);
-            const response = await Axios.get("http://localhost:5001/api/tables",  {
+            const response = await Axios.get(ipAddress+"/api/tables",  {
                 params: data
             }, (err, res) => {
                 if (err) {
