@@ -43,7 +43,7 @@ class PreprocessingService:
             dataFrame = dataFrame.withColumn("id", monotonically_increasing_id())
 
             # remove symbols from column names 
-            dataFrame = self.renameColumns(dataFrame)
+            #dataFrame = self.renameColumns(dataFrame)
             dataFrame = self.changeDataTypes(dataFrame)
             dataFrame = self.handleNullVal(dataFrame)
             logger.info(dataFrame.take(2))
@@ -121,11 +121,11 @@ class PreprocessingService:
                 columnName = field.name
                 logger.info("Field name %s , Field type %s", field.name, field.dataType)
                 dataType = self.getCQLType(str(field.dataType))
-                query += columnName + " " + dataType
+                query += '"' + columnName + '" ' + dataType
                 # if "id" == columnName:
                 #     query += " PRIMARY KEY"
             #query += ");"
-            query += ", PRIMARY KEY ((id)," + self.timeColumn + ") ) WITH CLUSTERING ORDER BY (" + self.timeColumn + " DESC);"
+            query += ', PRIMARY KEY ((id), "' + self.timeColumn + '") ) WITH CLUSTERING ORDER BY ("' + self.timeColumn + '" DESC);'
             logger.info(query)
             return query
         except Exception as e:
