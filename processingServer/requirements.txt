@@ -6,4 +6,5 @@ cassandra-driver
 prophet
 aioflask
 asgiref
-
+python-dotenv
+cassandra-sigv4

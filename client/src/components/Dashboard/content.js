@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import "./style-content.scss";
+import React, { useEffect, useState } from "react";
+import "./style-content.css";
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -11,9 +11,15 @@ import {
     CDBSidebarMenuItem,
   } from 'cdbreact';
 import Display from "../Display/display";
+import { useSelector } from "react-redux";
 
 export function Content() {
     const [clickedLink, setclickedLink] = useState({upload: true, tables: false, profile: false, analytics: false});
+    let {name, datasetDetails} = useSelector(state => state.login.userRes);
+    // const dispatch = useDispatch();
+    // useEffect(() => {
+    //   dispatch(getUserDetails({"username":"karthik"}));
+    // }, []);
 
     const handleUpload = () => {
         let copyObj = {...clickedLink}
@@ -50,6 +56,8 @@ export function Content() {
       copyObj.analytics = true;
       setclickedLink(copyObj);
     }
+
+
 
     return ( 
         <Container>

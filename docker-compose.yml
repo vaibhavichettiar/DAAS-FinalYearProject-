@@ -16,6 +16,8 @@ services:
       - "5001:5001"
     networks:
       - daas
+    links:
+      - "processingServer:flaskserver"
     volumes:
       - ./server:/295B/server
     
@@ -32,24 +34,56 @@ services:
     volumes:
     - ./client:/295B/client
 
+  spark-master:
+    image: spark-master
+    container_name: spark-master
+    build:
+      context: ./processingServer
+      dockerfile: ./Dockerfile
+      target: "spark-master"
+    ports:
+      - 8080:8080
+      - 7077:7077
+    volumes:
+      - hadoop-workspace:/opt/workspace
+    networks:
+      - daas
+
+  spark-worker-1:
+    image: spark-worker
+    container_name: spark-worker-1
+    build:
+      context: ./processingServer
+      dockerfile: ./Dockerfile
+      target: "spark-worker"
+    environment:
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=512m
+    ports:
+      - 8081:8081
+    volumes:
+      - hadoop-workspace:/opt/workspace
+    depends_on:
+      - spark-master
+    networks:
+      - daas
+
   processingServer:
     build:
       context: ./processingServer
       dockerfile: ./Dockerfile
-    image: spark:3.1.2
-    container_name: spark_container
+      target: "flask-server"
+    image: flaskserver
+    container_name: flaskserver
     depends_on:
-      - cassandra
-    environment:
-      - CASSANDRA_HOST=cassandra
-      - CASSANDRA_PASSWORD=cassandra
+      - spark-master
     ports:
       - "5000:5000"
     networks:
       - daas
     volumes:
-      - ./processingServer:/home/jovyan/295B/processingServer
-      
+      - ./processingServer:/usr/bin/spark-3.1.2-bin-hadoop3.2/295B/processingServer
+
 volumes:
   cassandra_data:
     driver: local

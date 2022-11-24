@@ -1,9 +1,10 @@
 from app.app import app
 from app.models.spark import sparkSession
 from flask import request, json, jsonify
-from app.services.preprocessingService import preprocessingService
-from app.services.forcastModelService import forcastModelService
-from app.services.predictionService import predictionService
+from app.services.preprocessingService import PreprocessingService
+from app.services.trainModelService import TrainModelService
+from app.services.predictionService import PredictionService
+from app.exception.processingException import ProcessingException
 import time
 import asyncio
 import logging 
@@ -17,27 +18,40 @@ def home():
 
 @app.route('/processing', methods=['POST'])
 def startPreprocessing():
-	data = json.loads(request.data)
-	preprocessFileObj = preprocessingService(data["Bucket"], data["FileName"])
-	return preprocessFileObj.processFile()
+	try:
+		data = json.loads(request.data)
+		preprocessFileObj = PreprocessingService(data["userId"], data["datasetId"])
+		return preprocessFileObj.processFile()
+	except Exception as e:
+		raise ProcessingException(e.message, e.status_code) 
 
 @app.route('/trainModel', methods=['POST'])
 def trainModel():
-	logger.info("In the trainModel")
-	processingId = json.loads(request.data)['processingId']
-	bucketName = json.loads(request.data)['bucketName']
-	train(processingId, bucketName)
-	return jsonify(message='Model training started for processingID: ' + processingId)
+	try:
+		data = json.loads(request.data)
+		train(data["userId"], data["datasetId"], data["timeColumn"], data["targetColumn"], data["categoryColumn"])
+		return jsonify(message='Model training started for datasetId: ' + data["datasetId"])
+	except Exception as e:
+		raise ProcessingException(e.message, e.status_code)
 
-@app.route('/forcastSale', methods=['POST'])
+@app.route('/predict', methods=['GET'])
 def predictSale():
-	data = json.loads(request.data)
-	predictionServiceObj = predictionService()
-	return predictionServiceObj.predict(data['dates'], data['productId'], data['bucketName'], data['processingId'])
+	try:
+		data = json.loads(request.data)
+		predictionServiceObj = PredictionService()
+		return predictionServiceObj.predict(data['startDate'], data['endDate'], data['productId'], data['userId'], data['datasetId'])
+	except Exception as e:
+		logger.exception(e)
+		raise ProcessingException(str(e), e.status_code)
 
-def train(processingId, bucketName):
-	forcastModelServiceObj = forcastModelService()
-	forcastModelServiceObj.trainModel(processingId, bucketName)
+def train(userId, datasetId, timeColumn, targetColumn, categoryColumn):
+	try:
+		trainModelServiceObj = TrainModelService()
+		trainModelServiceObj.trainModel(userId, datasetId, timeColumn, targetColumn, categoryColumn)
+	except Exception as e:
+		raise ProcessingException(str(e))
 
 
-
+@app.errorhandler(ProcessingException)
+def invalid_api_usage(e):
+    return jsonify(e.to_dict()), e.status_code
