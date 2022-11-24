@@ -2,19 +2,20 @@ const backendUtils = require("../../common/backendUtils");
 
 const predict = async (req, res) => {
 
-    const userId = req.body.userId;
-    const datasetId = req.body.datasetId;
-    const startDate = req.body.startDate;
-    const endDate = req.body.endDate;
-    const productId = req.body.productId;
+    const userId = req.query.userId;
+    const datasetId = req.query.datasetId;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+    const productId = req.query.productId;
     
     var payload = {
         userId : userId,
         datasetId : datasetId,
         startDate : startDate,
         endDate : endDate,
-        productId : productId
+        productId : parseInt(productId)
     }
+    console.log("payload : ", payload);
 
     backendUtils.sendRequest(res, "GET", "predict", payload)
 }
