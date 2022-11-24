@@ -8,3 +8,4 @@ aioflask
 asgiref
 python-dotenv
 cassandra-sigv4
+enum34

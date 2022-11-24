@@ -66,7 +66,7 @@ class cassandraConnection:
             return results
         except Exception as e:
             logger.exception(e)
-            logger.eeror("Unable to fetch data for query: %s" , selectQuery)
+            logger.error("Unable to fetch data for query: %s" , selectQuery)
             raise ProcessingException("Unable to fetch data for query: " + selectQuery, status_code=404)
 
     @staticmethod

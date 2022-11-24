@@ -20,7 +20,7 @@ def home():
 def startPreprocessing():
 	try:
 		data = json.loads(request.data)
-		preprocessFileObj = PreprocessingService(data["userId"], data["datasetId"])
+		preprocessFileObj = PreprocessingService(data["userId"], data["datasetId"], data["timeColumn"], data["targetColumn"], data["dateFormat"])
 		return preprocessFileObj.processFile()
 	except Exception as e:
 		raise ProcessingException(e.message, e.status_code) 

@@ -6,6 +6,8 @@ from app.models.spark import sparkSession
 from app.models.s3 import s3Conn
 from app.models.cassandra import cassandraConnection
 from app.exception.processingException import ProcessingException
+from app.utils.jobType import JobType
+from app.utils.jobType import JobStatus
 import pandas as pd
 import prophet
 from prophet import Prophet
@@ -25,16 +27,19 @@ class TrainModelService:
             dataframe = self.load_and_get_table_df(KEYSPACE, datasetTablename)
             logger.info("Loaded %s successfully", datasetTablename)
 
+            self.updateJobStatus(JobType.TRAINING, JobStatus.RUNNING, datasetId)
+
             dataframe = dataframe.toPandas()
             #dataframe = self.renamedColumn(dataframe)
             dataframe = self.convertDataType(dataframe, timeColumn, targetColumn, categoryColumn)
             logger.info("Data types are converted successfully")
-
+            logger.info(len(dataframe))
             # Do multipart time series modeling 
             self.multipartModeling(dataframe, userId, datasetId, timeColumn, targetColumn, categoryColumn)
-            self.updateJobStatus(datasetTablename, 1, datasetId)
+            self.updateJobStatus(JobType.TRAINING, JobStatus.SUCCESS, datasetId)
         except Exception as e:
             logger.exception(e)
+            self.updateJobStatus(JobType.TRAINING, JobStatus.FAILED, datasetId)
             raise ProcessingException("Error ocuured while training model:" + str(e), status_code=500)
 
     def load_and_get_table_df(self, keys_space_name, table_name):
@@ -59,7 +64,9 @@ class TrainModelService:
             dataframe[targetColumn] = dataframe[targetColumn].astype(float)
             if categoryColumn is not None:
                 dataframe[categoryColumn] = dataframe[categoryColumn].astype(int)
-            dataframe[timeColumn] = pd.to_datetime(dataframe[timeColumn])
+            dataframe[timeColumn] = pd.to_datetime(dataframe[timeColumn], errors = 'coerce')
+            dataframe = dataframe[dataframe[timeColumn].notna()]
+            dataframe = dataframe.reset_index(drop = True)
             dataframe = dataframe.sort_values(by=timeColumn)
             return dataframe
         except Exception as e:
@@ -70,12 +77,13 @@ class TrainModelService:
         try:
             if categoryColumn is None:
                 pickle_byte_obj = self.trainUnivariateModel(dataframe, timeColumn, targetColumn)
-                modelFileName = self.uploadModelFile(userId, datasetId, 0, pickle_byte_obj)
+                logger.info("model trained successfully")
+                self.uploadModelFile(userId, datasetId, 0, pickle_byte_obj)
             else: 
                 for categoryId in pd.unique(dataframe[categoryColumn]):
                     dataframe = dataframe[dataframe[categoryColumn] == categoryId] 
                     pickle_byte_obj = self.trainUnivariateModel(dataframe, timeColumn, targetColumn)
-                    modelFileName = self.uploadModelFile(userId, datasetId, categoryId, pickle_byte_obj)
+                    self.uploadModelFile(userId, datasetId, categoryId, pickle_byte_obj)
                     break
         except Exception as e:
             logger.exception("Error while training prophet model with datasetId: %s" , datasetId)
@@ -88,9 +96,9 @@ class TrainModelService:
         query = "INSERT INTO " + KEYSPACE + "." + MODELS + "(dataset_id, product_id, model_filename) VALUES (?, ?, ?) IF NOT EXISTS"
         cassandraConnection.updateTableQuery(query, [uuid.UUID(str(datasetId)), categoryId, modelFileName])
     
-    def updateJobStatus(self, tableName, job_status, datasetId):
-        query = "UPDATE " + KEYSPACE + "." + DATASETMETADATA + " SET  table_name = ? , job_status = ? WHERE id = ? IF EXISTS"
-        cassandraConnection.updateTableQuery(query, [tableName, job_status, uuid.UUID(str(datasetId))])
+    def updateJobStatus(self, job_type, job_status, datasetId):
+        query = "UPDATE " + KEYSPACE + "." + DATASETMETADATA + " SET  job_type = ? , job_status = ? WHERE id = ? IF EXISTS"
+        cassandraConnection.updateTableQuery(query, [job_type, job_status, uuid.UUID(str(datasetId))])
     
     def trainUnivariateModel(self, dataframe, timeColumn, targetColumn):
         dataframe = dataframe[[timeColumn, targetColumn]]
