@@ -72,12 +72,15 @@ Successful response : 200 OK
 
 - Train Model  
 ```
-URL : http://localhost:5000/trainModel
+URL : http://localhost:5001/api/train
 Type : POST 
 JSON request Payload : 
 {
     "userId" : <userID>,
-    "datasetId" : <datasetID>
+    "datasetId" : <datasetID>,
+    "timeColumn" : <date column name>,
+    "targetColumn" : <target column name>,
+    "categoryColumn" : <category vise modeling or pass null>
 }
 
 Successful response : 200 OK 
@@ -89,32 +92,33 @@ Successful response : 200 OK
 
 - Forcast   
 ```
-URL : http://localhost:5000/forcastSale
-Type : POST 
+URL : http://localhost:5001/api/predict
+Type : GET 
 JSON request Payload : 
 {
-    "dates" : <Time range>,
-    "productId" : <productID>,
-    "userId" : <userID>,
-    "datasetId" : <datasetID>
+    "startDate" : "2019-11-22",
+    "endDate" : "2019-12-02",
+    "productId" : 35,
+    "userId" : "49843a94-ecc0-41b1-9c1d-50bfb1895d6c",
+    "datasetId" : "ce196496-e014-488b-b218-4c7c6d8f4a45"
 }
 
 Successful response : 200 OK
-{
-    "columns": [
-        "date",
-        "predicted sales"
-    ],
-    "data": [
-        [
-            1576972800000,
-            292815.4097602503
-        ]
-    ],
-    "index": [
-        0
-    ]
-}
+[
+    {
+        "date": "2019-11-22",
+        "predicted sales": 292663.868
+    },
+    {
+        "date": "2019-11-23",
+        "predicted sales": 292668.919
+    },
+    {
+        "date": "2019-11-24",
+        "predicted sales": 292673.97
+    },
+    ...
+]
 ```
 
 #### Time series models

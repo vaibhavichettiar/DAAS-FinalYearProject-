@@ -10,7 +10,7 @@ const processData = async (req, res) => {
         datasetId : datasetId
     }
 
-    backendUtils.sendRequest(res, "processing", payload)
+    backendUtils.sendRequest(res, "POST", "processing", payload)
 }
 
 module.exports = {

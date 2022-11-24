@@ -51,6 +51,7 @@ class PreprocessingService:
             return jsonify(message='Processing completed for dataset: ' + self.datasetId)
         except Exception as e:
             logger.exception(e)
+            self.updateJobStatus("", 2)
             raise ProcessingException("Error Occured while processing dataset. Reason : " + str(e), status_code=500)
 
     def jsonifyDataFrame(self, dataframe):
@@ -62,8 +63,8 @@ class PreprocessingService:
                 if "id" in column:
                     dataframe = dataframe.withColumn(column, dataframe[column].cast(types.IntegerType()))
                 if "date" in column:
-                    #dataframe = dataframe.withColumn(column,to_date(dataframe[column], 'dd/MM/yyyy'))
-                    dataframe = dataframe.withColumn(column, F.from_unixtime(unix_timestamp('date', 'MM/dd/yyyy')))
+                    dataframe = dataframe.withColumn(column,to_date(dataframe[column], 'MM/dd/yyyy'))
+                    #dataframe = dataframe.withColumn(column, F.from_unixtime(unix_timestamp('date', 'MM/dd/yyyy')))
                 if "sales" in column:
                     dataframe = dataframe.withColumn(column, dataframe[column].cast(types.FloatType()))
             return dataframe
@@ -101,11 +102,13 @@ class PreprocessingService:
                 else:
                     query += ', '
                 columnName = field.name
-                dataType = self.getCQLType(field.dataType)
+                logger.info("Field name %s , Field type %s", field.name, field.dataType)
+                dataType = self.getCQLType(str(field.dataType))
                 query += columnName + " " + dataType
-                if "id" == columnName:
-                    query += " PRIMARY KEY"
-            query += ");"
+                # if "id" == columnName:
+                #     query += " PRIMARY KEY"
+            #query += ");"
+            query += ", PRIMARY KEY ((id),date) ) WITH CLUSTERING ORDER BY (date DESC);"
             logger.info(query)
             return query
         except Exception as e:
