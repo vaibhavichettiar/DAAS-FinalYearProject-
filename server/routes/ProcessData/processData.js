@@ -7,16 +7,18 @@ const processData = async (req, res) => {
     const timeColumn = req.body.timeColumn;
     const targetColumn = req.body.targetColumn;
     const dateFormat = req.body.dateFormat;
+    const categoryColumn = req.body.categoryColumn;
     
     var payload = {
         userId : userId,
         datasetId : datasetId,
         timeColumn : timeColumn,
         targetColumn : targetColumn,
-        dateFormat : dateFormat
+        dateFormat : dateFormat,
+        categoryColumn : categoryColumn
     }
 
-    backendUtils.sendRequest(res, "POST", "processing", payload)
+    backendUtils.sendRequest(res, "POST", "dataPrep", payload)
 }
 
 module.exports = {

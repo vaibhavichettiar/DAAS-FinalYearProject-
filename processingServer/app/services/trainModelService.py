@@ -62,7 +62,7 @@ class TrainModelService:
     def convertDataType(self, dataframe, timeColumn, targetColumn, categoryColumn):
         try:
             dataframe[targetColumn] = dataframe[targetColumn].astype(float)
-            if categoryColumn is not None:
+            if categoryColumn is not None and categoryColumn != "":
                 dataframe[categoryColumn] = dataframe[categoryColumn].astype(int)
             dataframe[timeColumn] = pd.to_datetime(dataframe[timeColumn], errors = 'coerce')
             dataframe = dataframe[dataframe[timeColumn].notna()]
@@ -75,7 +75,7 @@ class TrainModelService:
 
     def multipartModeling(self, dataframe, userId, datasetId, timeColumn, targetColumn, categoryColumn):
         try:
-            if categoryColumn is None:
+            if categoryColumn is None or categoryColumn == "":
                 pickle_byte_obj = self.trainUnivariateModel(dataframe, timeColumn, targetColumn)
                 logger.info("model trained successfully")
                 self.uploadModelFile(userId, datasetId, 0, pickle_byte_obj)

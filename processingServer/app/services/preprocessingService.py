@@ -29,42 +29,42 @@ class PreprocessingService:
         if targetColumn is None:
             targetColumn = "sales"
         self.targetColumn = targetColumn
-        if dateFormat is None:
+        if dateFormat is None or dateFormat == "":
             dateFormat = 'MM/dd/yyyy'
         self.dateFormat = dateFormat
     
     def processFile(self):
         try:
+            if not cassandraConnection.isTableExist(self.getTableName()):
+                datasetName = self.getDatasetName()
+                dataFrame = sparkSession.read.option("header", "true").csv("s3a://" + BUCKET + "/" + self.userId + "/" + datasetName)
+                
+                # add primary column with id 
+                dataFrame = dataFrame.withColumn("id", monotonically_increasing_id())
 
-            datasetName = self.getDatasetName()
-            dataFrame = sparkSession.read.option("header", "true").csv("s3a://" + BUCKET + "/" + self.userId + "/" + datasetName)
-            
-            # add primary column with id 
-            dataFrame = dataFrame.withColumn("id", monotonically_increasing_id())
+                # remove symbols from column names 
+                #dataFrame = self.renameColumns(dataFrame)
+                dataFrame = self.changeDataTypes(dataFrame)
+                dataFrame = self.handleNullVal(dataFrame)
+                logger.info(dataFrame.take(2))
+                # Create table query to push data in to the cassandra db
+                tableName = self.convertCSVDataToTable(dataFrame)
 
-            # remove symbols from column names 
-            #dataFrame = self.renameColumns(dataFrame)
-            dataFrame = self.changeDataTypes(dataFrame)
-            dataFrame = self.handleNullVal(dataFrame)
-            logger.info(dataFrame.take(2))
-            # Create table query to push data in to the cassandra db
-            tableName = self.convertCSVDataToTable(dataFrame)
+                # Hack: wait for 15s before AWS Keyspace generate the table
+                time.sleep(35)
 
-            # Hack: wait for 15s before AWS Keyspace generate the table
-            time.sleep(15)
-
-            self.updateJobStatus(tableName, JobType.PROCESSING, JobStatus.RUNNING)
-            # publish data to the cassandra db 
-            dataFrame.write.format('org.apache.spark.sql.cassandra').mode('append').options(table=tableName, keyspace=KEYSPACE).save()
-            logger.info("Uploaded data successfully")
-            
-            # update processing job status with sucessful. 
-            self.updateJobStatus(tableName, JobType.PROCESSING, JobStatus.SUCCESS)
+                self.updateJobStatusWithTable(tableName, JobType.PROCESSING, JobStatus.RUNNING)
+                # publish data to the cassandra db 
+                dataFrame.write.format('org.apache.spark.sql.cassandra').mode('append').options(table=tableName, keyspace=KEYSPACE).save()
+                logger.info("Uploaded data successfully")
+                
+                # update processing job status with sucessful. 
+                self.updateJobStatusWithTable(tableName, JobType.PROCESSING, JobStatus.SUCCESS)
 
             return jsonify(message='Processing completed for dataset: ' + self.datasetId)
         except Exception as e:
             logger.exception(e)
-            self.updateJobStatus("", JobType.PROCESSING, JobStatus.FAILED)
+            self.updateJobStatus(JobType.PROCESSING, JobStatus.FAILED)
             raise ProcessingException("Error Occured while processing dataset. Reason : " + str(e), status_code=500)
 
     def jsonifyDataFrame(self, dataframe):
@@ -145,9 +145,13 @@ class PreprocessingService:
         results = cassandraConnection.getSelectQueryResults(query, [uuid.UUID(str(self.datasetId))])
         return results.one().name
 
-    def updateJobStatus(self, tableName, job_type, job_status):
+    def updateJobStatusWithTable(self, tableName, job_type, job_status):
         query = "UPDATE " + KEYSPACE + "." + DATASETMETADATA + " SET  table_name = ? , job_type = ? , job_status = ? WHERE id = ? IF EXISTS"
         cassandraConnection.updateTableQuery(query, [tableName, job_type, job_status, uuid.UUID(self.datasetId)])
+
+    def updateJobStatus(self, job_type, job_status):
+        query = "UPDATE " + KEYSPACE + "." + DATASETMETADATA + " SET  job_type = ? , job_status = ? WHERE id = ? IF EXISTS"
+        cassandraConnection.updateTableQuery(query, [job_type, job_status, uuid.UUID(self.datasetId)])
 
     def convertCSVDataToTable(self, dataFrame):
         tableName = self.getTableName() 
