@@ -14,7 +14,7 @@ const predict = require('./Predict/predict.js');
 router.post('/login', jsonParser, Login.loginUser);
 router.post('/register', jsonParser, registeruser.registerUser);
 router.post('/fileUpload', jsonParser, fileUpload.dataUpload);
-router.post('/process', jsonParser, processData.processData);
+router.post('/dataPrep', jsonParser, processData.processData);
 router.post('/train', jsonParser, trainModel.trainModel);
 router.get('/tables', jsonParser, tables.tabularData);
 router.get('/userProfile', jsonParser, userData);

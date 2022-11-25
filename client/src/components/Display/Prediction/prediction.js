@@ -36,6 +36,7 @@ function Prediction() {
     const [display, setDisplay] = useState(false);
     const [category, setCategory] = useState("");
     const [dateCol, setDateCol] = useState("");
+    const [dateFormat, setDateFormat] = useState("");
     const [targetCol, setTargetCol] = useState("");
     const [productId, setProductId] = useState("");
     const [showTrain, setShowTrain] = useState(false);
@@ -58,9 +59,10 @@ function Prediction() {
                 "datasetId": datasetid,
                 "timeColumn": dateCol,
                 "targetColumn": targetCol,
-                "categoryColumn": category
+                "categoryColumn": category,
+                "dateFormat": dateFormat
             }
-              const response = await Axios.post(ipAddress+"/api/train", data, (err, res) => {
+              const response = await Axios.post(ipAddress+"/api/dataPrep", data, (err, res) => {
                   if (err) {
                       return null;
                   }
@@ -123,6 +125,10 @@ function Prediction() {
         setDateCol(e.target.value);
     }
 
+    const handleDateFormat = (e) => {
+        setDateFormat(e.target.value);
+    }
+
     const handleTarget = (e) => {
         setTargetCol(e.target.value);
     }
@@ -134,10 +140,10 @@ function Prediction() {
     return ( <>
     <Container>
             <Row style={{marginTop:"60px"}}>
-                <Button variant="success" style={{width:'50%'}} onClick={handleTrain}>Train the dataset</Button>
+                <Button variant="success" style={{width:'50%'}} onClick={handleTrain}>Prepare the Dataset</Button>
                 <Modal show={showTrain} onHide={handleTrainClose}>
                     <Modal.Header closeButton>
-                    <Modal.Title>Train the dataset</Modal.Title>
+                    <Modal.Title>Prepare the Dataset</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                     <Form>
@@ -155,6 +161,13 @@ function Prediction() {
                         >
                         <Form.Label>Provide the name of the date column</Form.Label>
                         <Form.Control type="text" onChange={handleDate} />
+                        </Form.Group>
+                        <Form.Group
+                        className="mb-3"
+                        controlId="dateFormat"
+                        >
+                        <Form.Label>Provide the date format</Form.Label>
+                        <Form.Control type="text" onChange={handleDateFormat} />
                         </Form.Group>
                         <Form.Group
                         className="mb-3"
