@@ -2,15 +2,22 @@
 .content { 
   padding: 10px;
   height: 90vh;
+  padding-top: 20px;
+}
+
+.sidebarDiv{
+  display: flex;
+  height: 80vh;
+  overflow:scroll initial;
+  padding-top: 30px;
+  padding-bottom: 20px;
 }
 
 .sidebar {
-  float: left;
-  width: 15%;
-  padding-top: 30px;
-  border: solid purple 5px;
-  background-color: aquamarine;
-  height: 50vh;
+  background-color: #2b6777;
+  color: white;
+  font-size: larger;
+  border-radius: 10px;
 }
 
 .information {
@@ -18,4 +25,16 @@
   float: right;
   width: 100%;
   border: solid red 10px;
+}
+
+.sideBarMenuItem {
+  background-color: #2b6777;
+  color: white;
+  border: none;
+  width: 100%;
+}
+
+.sideBarMenuItem:hover{
+  background-color: #c8d8e4;
+  color:#2b6777
 }

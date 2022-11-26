@@ -140,7 +140,7 @@ function Prediction() {
     return ( <>
     <Container>
             <Row style={{marginTop:"60px"}}>
-                <Button variant="success" style={{width:'50%'}} onClick={handleTrain}>Prepare the Dataset</Button>
+                <Button style={{width:'50%',background:'#52ab98'}} onClick={handleTrain}>Prepare the Dataset</Button>
                 <Modal show={showTrain} onHide={handleTrainClose}>
                     <Modal.Header closeButton>
                     <Modal.Title>Prepare the Dataset</Modal.Title>
@@ -195,7 +195,7 @@ function Prediction() {
                 </Row>
             </Row>
             <Row style={{marginTop:"90px"}}>
-            <Button variant="success" style={{width:'50%'}} onClick={handlePredict}>Predict</Button>
+            <Button variant="success" style={{width:'50%',background:'#52ab98'}} onClick={handlePredict}>Predict</Button>
             <Modal show={showPredict} onHide={handlePredictClose}>
                     <Modal.Header closeButton>
                     <Modal.Title>Prediction</Modal.Title>
