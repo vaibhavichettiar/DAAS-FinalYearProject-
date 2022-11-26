@@ -28,12 +28,10 @@ function Analytics() {
 
   useEffect(() => {
     async function fetchData() {
-      console.log("did = ", datasetid);
       let data = {
         userid: userid,
         datasetid: datasetid,
       };
-      console.log("data = ", data);
       const response = await Axios.get(
         "http://localhost:5001/api/tables",
         {
@@ -53,9 +51,7 @@ function Analytics() {
 
   useEffect(() => {
     function generateMap() {
-      console.log("In the generateMap function");
       if (parsedCsvData.length > 0) {
-        console.log("res = ", parsedCsvData);
         setMap();
       }
     }
@@ -64,9 +60,7 @@ function Analytics() {
 
   useEffect(() => {
     function generateFilter() {
-      console.log("In the generateFilter function");
       if (years.size > 0) {
-        console.log("logs years : ", years);
         setFilter();
       }
     }
@@ -75,9 +69,7 @@ function Analytics() {
 
   useEffect(() => {
     function generateChart() {
-      console.log("In the generateChart function");
       if (yearList.length > 0) {
-        console.log("logs filter : ", yearList);
         changeLineChart(yearList);
         changeAreaChart(yearList);
       }
@@ -87,7 +79,6 @@ function Analytics() {
 
   function setFilter() {
     if (years.size > 0) {
-      console.log("Updated Sales Data", years);
       let logs = [];
       years.forEach((values, keys) => {
         logs.push(keys);
@@ -119,7 +110,6 @@ function Analytics() {
         return true;
       }
     });
-    console.log("New data:", Object.keys(newArray).length);
     let obj = {
       labels: newArray.map((data) => data.date.split(" ")[0]),
       datasets: [
@@ -149,7 +139,6 @@ function Analytics() {
         return true;
       }
     });
-    console.log("New data:", Object.keys(newArray).length);
     let obj = {
       labels: newArray.map((data) => data.date.split(" ")[0]),
       datasets: [
@@ -170,7 +159,6 @@ function Analytics() {
     let map = years;
     map.set(selectedItem, !map.get(selectedItem));
     setYears(map);
-    console.log("years", years);
     let filter = [];
     years.forEach((values, keys) => {
       if (years.get(keys) === true) {
@@ -182,7 +170,6 @@ function Analytics() {
   }
 
   function onChartChanged(selectedList, selectedItem) {
-    console.log("sel item = ", selectedItem);
     if (selectedItem == "Line") {
       setLineChartShow(!lineChartShow);
     }
