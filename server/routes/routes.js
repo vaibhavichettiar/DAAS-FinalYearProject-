@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
 
 const Login = require('./Auth/Login.js');
+const logout = require('./Auth/logout');
 const registeruser = require('./Auth/registerUser.js');
 const fileUpload = require('./FileUpload/fileupload.js');
 const processData = require('./ProcessData/processData.js');
@@ -19,5 +20,6 @@ router.post('/train', jsonParser, trainModel.trainModel);
 router.get('/tables', jsonParser, tables.tabularData);
 router.get('/userProfile', jsonParser, userData);
 router.get('/predict', jsonParser, predict.predict);
+router.get('/logout', jsonParser, logout.logoutUser);
 
 module.exports = router;

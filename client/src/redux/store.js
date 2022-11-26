@@ -1,11 +1,11 @@
 import { applyMiddleware, combineReducers, createStore, compose } from "redux";
 import thunk from "redux-thunk";
-import { loginReducer } from "./reducers/loginReducer";
 import { registerReducer } from "./reducers/registerReducer";
 import { dashboardReducer } from "./reducers/dashboardReducer";
+import { loginReducer } from "./reducers/loginReducer";
 
 const appReducer = combineReducers({
-  login: loginReducer,
+  lg: loginReducer,
   register: registerReducer,
   dashboard: dashboardReducer
 });

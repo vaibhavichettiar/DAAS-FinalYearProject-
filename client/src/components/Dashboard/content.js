@@ -15,12 +15,8 @@ import { useSelector } from "react-redux";
 
 export function Content() {
     const [clickedLink, setclickedLink] = useState({upload: true, tables: false, profile: false, analytics: false, prediction: false});
-    let {name, datasetDetails} = useSelector(state => state.login.userRes);
-    // const dispatch = useDispatch();
-    // useEffect(() => {
-    //   dispatch(getUserDetails({"username":"karthik"}));
-    // }, []);
-
+    let {userid} = useSelector(state => state.lg.userRes);
+    
     const handleUpload = () => {
         let copyObj = {...clickedLink}
         copyObj.upload = true;
