@@ -20,8 +20,7 @@ def home():
 def startPreprocessing():
 	try:
 		data = json.loads(request.data)
-		preprocessFileObj = PreprocessingService(data["userId"], data["datasetId"])
-		return preprocessFileObj.processFile()
+		return process(data["userId"], data["datasetId"], data["timeColumn"], data["targetColumn"], data["dateFormat"])
 	except Exception as e:
 		raise ProcessingException(e.message, e.status_code) 
 
@@ -30,9 +29,18 @@ def trainModel():
 	try:
 		data = json.loads(request.data)
 		train(data["userId"], data["datasetId"], data["timeColumn"], data["targetColumn"], data["categoryColumn"])
-		return jsonify(message='Model training started for datasetId: ' + data["datasetId"])
 	except Exception as e:
 		raise ProcessingException(e.message, e.status_code)
+
+@app.route('/dataPrep', methods=['POST'])
+def processAndTrain():
+	try:
+		data = json.loads(request.data)
+		prepareData(data["userId"], data["datasetId"], data["timeColumn"], data["targetColumn"], data["categoryColumn"], data["dateFormat"])
+		return jsonify(message='Data Preparation started for datasetId: ' + data["datasetId"])
+	except Exception as e:
+		logger.exception(e)
+		raise ProcessingException(str(e), e.status_code)
 
 @app.route('/predict', methods=['GET'])
 def predictSale():
@@ -44,13 +52,23 @@ def predictSale():
 		logger.exception(e)
 		raise ProcessingException(str(e), e.status_code)
 
+def process(userId, datasetId, timeColumn, targetColumn, dateFormat):
+	preprocessFileObj = PreprocessingService(userId, datasetId, timeColumn, targetColumn, dateFormat)
+	return preprocessFileObj.processFile()
+
+
 def train(userId, datasetId, timeColumn, targetColumn, categoryColumn):
 	try:
 		trainModelServiceObj = TrainModelService()
 		trainModelServiceObj.trainModel(userId, datasetId, timeColumn, targetColumn, categoryColumn)
+		return jsonify(message='Model training started for datasetId: ' + datasetId)
 	except Exception as e:
 		raise ProcessingException(str(e))
 
+def prepareData(userId, datasetId, timeColumn, targetColumn, categoryColumn, dateFormat):
+	process(userId, datasetId, timeColumn, targetColumn, dateFormat)
+	train(userId, datasetId, timeColumn, targetColumn, categoryColumn)
+		
 
 @app.errorhandler(ProcessingException)
 def invalid_api_usage(e):

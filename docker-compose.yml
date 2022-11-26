@@ -85,9 +85,5 @@ services:
       - ./processingServer:/usr/bin/spark-3.1.2-bin-hadoop3.2/295B/processingServer
 
 volumes:
-  cassandra_data:
-    driver: local
-  kafka_vol:
-  zookeeper_vol:
   hadoop-workspace:
     driver: local

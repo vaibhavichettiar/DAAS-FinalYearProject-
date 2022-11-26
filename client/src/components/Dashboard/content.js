@@ -14,7 +14,7 @@ import Display from "../Display/display";
 import { useSelector } from "react-redux";
 
 export function Content() {
-    const [clickedLink, setclickedLink] = useState({upload: true, tables: false, profile: false, analytics: false});
+    const [clickedLink, setclickedLink] = useState({upload: true, tables: false, profile: false, analytics: false, prediction: false});
     let {name, datasetDetails} = useSelector(state => state.login.userRes);
     // const dispatch = useDispatch();
     // useEffect(() => {
@@ -27,6 +27,7 @@ export function Content() {
         copyObj.tables = false;
         copyObj.profile = false;
         copyObj.analytics = false;
+        copyObj.prediction = false;
         setclickedLink(copyObj);
     }
 
@@ -36,6 +37,7 @@ export function Content() {
       copyObj.tables = true;
       copyObj.profile = false;
       copyObj.analytics = false;
+      copyObj.prediction = false;
       setclickedLink(copyObj);
     }
 
@@ -45,6 +47,7 @@ export function Content() {
       copyObj.tables = false;
       copyObj.profile = true;
       copyObj.analytics = false;
+      copyObj.prediction = false;
       setclickedLink(copyObj);
     }
 
@@ -54,6 +57,17 @@ export function Content() {
       copyObj.tables = false;
       copyObj.profile = false;
       copyObj.analytics = true;
+      copyObj.prediction = false;
+      setclickedLink(copyObj);
+    }
+
+    const handlePrediction = () => {
+      let copyObj = {...clickedLink}
+      copyObj.upload = false;
+      copyObj.tables = false;
+      copyObj.profile = false;
+      copyObj.analytics = false;
+      copyObj.prediction = true;
       setclickedLink(copyObj);
     }
 
@@ -85,6 +99,9 @@ export function Content() {
             <button onClick={handleAnalytics} style={{color:"white", backgroundColor:"#333", border:"none"}}>
               <CDBSidebarMenuItem icon="chart-line">Analytics</CDBSidebarMenuItem>
             </button>
+            <button onClick={handlePrediction} style={{color:"white", backgroundColor:"#333", border:"none"}}>
+              <CDBSidebarMenuItem icon="book">Prediction</CDBSidebarMenuItem>
+            </button>
           </CDBSidebarMenu>
         </CDBSidebarContent>
       </CDBSidebar>
@@ -95,6 +112,7 @@ export function Content() {
             { clickedLink.tables == true && <Display data={clickedLink}/>}
             { clickedLink.profile == true && <Display data={clickedLink}/>}
             { clickedLink.analytics == true && <Display data={clickedLink}/>}
+            { clickedLink.prediction == true && <Display data={clickedLink}/>}
             </Col>
       </Row>
     </Container>

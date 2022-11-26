@@ -66,7 +66,7 @@ class cassandraConnection:
             return results
         except Exception as e:
             logger.exception(e)
-            logger.eeror("Unable to fetch data for query: %s" , selectQuery)
+            logger.error("Unable to fetch data for query: %s" , selectQuery)
             raise ProcessingException("Unable to fetch data for query: " + selectQuery, status_code=404)
 
     @staticmethod
@@ -80,6 +80,22 @@ class cassandraConnection:
             logger.exception(e)
             logger.error("Unable toexecute update query: %s" , insertQuery)
             raise ProcessingException("Unable toexecute update query: " + insertQuery + " Message: " + str(e), status_code=404)
+
+    @staticmethod
+    def isTableExist(tableName):
+        try:
+            query = "SELECT * FROM system_schema. tables WHERE keyspace_name = '" +  KEYSPACE + "' AND table_name = '" + tableName + "';"
+            results = cassConn.execute(query)
+            logger.info(results)
+            if results is not None and results.one() is not None:
+                return True
+            return False
+        except Exception as e:
+            logger.exception(e)
+            logger.error("Unable to find the table : %s" , tableName)
+            raise ProcessingException("Unable to find the table: " + tableName + " Message: " + str(e), status_code=404)
+   
+        
 
 
 
