@@ -1,5 +1,41 @@
 
 .toolbar {
   width: 100%;
-  margin: auto;
+  background-color: white;
+  height: 15vh;
+}
+
+.toolbarContents{
+  width: 100%;
+  padding-top: 3vh;
+  padding-left: 20%;
+  padding-right: 20%;
+  height: inherit;
+  align-self: center;
+  /* background-color: blue; */
+}
+
+.DDBDiv{
+  padding-top: 15px;
+}
+
+#dropdown-item-button{
+  /* padding-top: ; */
+  background-color: #52ab98;
+  height: 90%;
+  float: right;
+}
+
+#dropdown-item{
+  /* background-color: #52ab98; */
+}
+
+.title{
+  float: left;
+  font-weight: bolder;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  color: black;
+  /* background-color: antiquewhite; */
+  font-size: 50px;
+  font-stretch: expanded;
 }

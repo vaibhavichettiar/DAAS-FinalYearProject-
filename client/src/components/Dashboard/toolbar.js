@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getUserDetails, getSelectedDataset } from "../../redux/actions/dashboardAction";
 import Axios from 'axios';
 import { ipAddress } from "../../config";
+import { Container } from "react-bootstrap";
 
 export function Toolbar() {
     let {datasetDetails} = useSelector(state => state.dashboard.userDetails);
@@ -50,14 +51,15 @@ export function Toolbar() {
     }
     return (
         <div className="toolbar">
-            <div style={{textAlign:"center"}}>
-                <h3 style={{fontWeight:'bold'}}>DAAS</h3>
+            <div className="toolbarContents">
+                <p className="title">DAAS</p>
+                <div className="DDBDiv">
                 <DropdownButton id="dropdown-item-button" title="Select the dataset" variant="secondary" menuVariant="dark" >
                 {datasetNames.map((name, index) => {
-              return <Dropdown.Item key = {index} as="button" onClick={() => handleDatasetName(name, index)}>{name}</Dropdown.Item>;
+              return <Dropdown.Item id="dropdown-item" key = {index} as="button" onClick={() => handleDatasetName(name, index)}>{name}</Dropdown.Item>;
             })}
                 </DropdownButton>
-                < hr/>
+                </div>
             </div>
         </div>
     )
