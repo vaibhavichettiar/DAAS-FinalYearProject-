@@ -55,12 +55,15 @@ URL : localhost:5000
 #### backend API 
 - Processing data 
 ```
-URL : http://localhost:5000/processing
+URL : http://localhost:5001/api/process
 Type : POST 
 JSON request Payload : 
 {
     "userId" : <userID>,
-    "datasetId" : <datasetID>
+    "datasetId" : <datasetID>,
+    "timeColumn" : <date column name>,
+    "targetColumn" : <target column name>,
+    "dateFormat" : <Date format in the user data>
 }
 
 Successful response : 200 OK 
