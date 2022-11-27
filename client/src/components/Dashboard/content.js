@@ -15,8 +15,16 @@ import { useSelector } from "react-redux";
 
 export function Content() {
     const [clickedLink, setclickedLink] = useState({upload: true, tables: false, profile: false, analytics: false, prediction: false});
+
     let {userid} = useSelector(state => state.lg.userRes);
-    
+
+    const [hover, setHover] = useState(false)
+
+    const sectionStyle = {
+      background: hover ? '#c8d8e4' : '#2b6777',
+      // padding: hover ? Metrics.spacing.inside : undefined,
+    };
+
     const handleUpload = () => {
         let copyObj = {...clickedLink}
         copyObj.upload = true;
@@ -73,29 +81,29 @@ export function Content() {
         <Container>
       <Row>
         <Col xs={3}>
-        <div style={{ display: 'flex', height: '80vh', overflow: 'scroll initial', paddingBottom:'20px' }}>
-      <CDBSidebar textColor="#fff" backgroundColor="#333">
+    <div className="sidebarDiv">
+      <CDBSidebar textColor="#fff" className="sidebar" backgroundColor="#2b6777"  color="#2b6777">
         <CDBSidebarHeader prefix={<i className="fa fa-bars fa-large"></i>}>
-          <p style={{ color: 'inherit' }}>
+          <p style={{  color: "white" }}>
             Menu
           </p>
         </CDBSidebarHeader>
 
         <CDBSidebarContent className="sidebar-content">
           <CDBSidebarMenu>
-            <button onClick={handleUpload} style={{color:"white", backgroundColor:"#333", border:"none"}}>
+            <button onClick={handleUpload} style={sectionStyle} className="sideBarMenuItem" onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>
               <CDBSidebarMenuItem icon="columns">Upload Dataset</CDBSidebarMenuItem>
             </button>
-            <button onClick={handleTable} style={{color:"white", backgroundColor:"#333", border:"none"}}>
+            <button onClick={handleTable} className="sideBarMenuItem">
               <CDBSidebarMenuItem icon="table">Tabular View</CDBSidebarMenuItem>
             </button>
-            <button onClick={handleProfile} style={{color:"white", backgroundColor:"#333", border:"none"}}>
+            <button onClick={handleProfile} className="sideBarMenuItem">
               <CDBSidebarMenuItem icon="user">Profile page</CDBSidebarMenuItem>
             </button>
-            <button onClick={handleAnalytics} style={{color:"white", backgroundColor:"#333", border:"none"}}>
+            <button onClick={handleAnalytics} className="sideBarMenuItem">
               <CDBSidebarMenuItem icon="chart-line">Analytics</CDBSidebarMenuItem>
             </button>
-            <button onClick={handlePrediction} style={{color:"white", backgroundColor:"#333", border:"none"}}>
+            <button onClick={handlePrediction} className="sideBarMenuItem">
               <CDBSidebarMenuItem icon="book">Prediction</CDBSidebarMenuItem>
             </button>
           </CDBSidebarMenu>

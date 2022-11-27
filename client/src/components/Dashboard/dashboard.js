@@ -7,7 +7,6 @@ function Dashboard() {
         <div className="dashboard">
             <Toolbar></Toolbar>
             <div className="mainPage">
-                
                 <Content></Content>
             </div>
         </div>
