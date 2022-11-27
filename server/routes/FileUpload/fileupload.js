@@ -15,48 +15,56 @@ let s3Stream = require('s3-upload-stream')(s3);
 let bucket = 'daas1';
 
 const dataUpload = async (req, res) => {
-    var form = formidable.IncomingForm();
-    var fileName, dataSetName, fileLocation, fileSize;
-    form.multiples = true;
-    form.uploadDir = path.join(path.dirname(__dirname), '../uploads');
+        console.log(req.headers.authorization.split(" ")[1]);
+        
+        //******************************************//
+        //this userid can be used to create the filename.
+        const userid = req.headers.authorization.split(" ")[1];
+        //******************************************//
 
-    form.on('error', function (err) {
-        console.log('An error occured: \n' + err);
-    });
-    
-    form.on('end', function () {
-        console.log(fileName, dataSetName, fileLocation, fileSize);
-    });
+        var form = formidable.IncomingForm();
+        var fileName, dataSetName, fileLocation, fileSize;
+        form.multiples = true;
+        form.uploadDir = path.join(path.dirname(__dirname), '../uploads');
 
-    form.onPart = function(part) {
-        console.log("part : ", part);
-        let start = new Date().getTime();
-        let upload = s3Stream.upload({
-            "Bucket": bucket,
-            "Key": part.filename
+        form.on('error', function (err) {
+            console.log('An error occured: \n' + err);
         });
-        upload.concurrentParts(5);
+        
+        form.on('end', function () {
+            console.log(fileName, dataSetName, fileLocation, fileSize);
+        });
 
-        upload.on('error', function (error) {
-            console.log('errr',error);
-        });
-        upload.on('part', function (details) {
-            console.log('part',details);
-        });
-        upload.on('uploaded', function (details) {
-            let end = new Date().getTime();
-            console.log('it took',end-start);
-            console.log('uploaded',details);
-        });
-        part.pipe(upload);
-    }
+        form.onPart = function(part) {
+            console.log("part : ", part);
+            let start = new Date().getTime();
+            let upload = s3Stream.upload({
+                "Bucket": bucket,
+                "Key": part.filename
+            });
+            upload.concurrentParts(5);
 
-    form.parse(req, function(err, fields, files) {
-        if (err) {
-            backendUtils.respond(res, 500, err);
+            upload.on('error', function (error) {
+                console.log('errr',error);
+            });
+            upload.on('part', function (details) {
+                console.log('part',details);
+            });
+            upload.on('uploaded', function (details) {
+                let end = new Date().getTime();
+                console.log('it took',end-start);
+                console.log('uploaded',details);
+            });
+            part.pipe(upload);
         }
-        backendUtils.respond(res, 200, 'file uploaded successfully');
-    });
+
+        form.parse(req, function(err, fields, files) {
+            if (err) {
+                backendUtils.respond(res, 500, err);
+            }
+            backendUtils.respond(res, 200, 'file uploaded successfully');
+        });
+        
 }
 
 module.exports = {

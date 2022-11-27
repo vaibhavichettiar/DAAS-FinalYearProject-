@@ -11,12 +11,12 @@ const registerUser = async ( username, password) => {
 }
 
 const getPasswordForUsername = async (username) => {
-    const query = `select password from daas_ks.users where name = ? ALLOW FILTERING`;
+    const query = `select id, password from daas_ks.users where name = ? ALLOW FILTERING`;
     return client.execute(query,[username]).then(result => {
         if(!result.rows.length){
             return null;
         }
-        return result.rows[0].password;
+        return result.rows[0];
     });
 }
 

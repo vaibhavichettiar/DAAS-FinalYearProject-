@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 export function Login()
 {
     const navigate = useNavigate();
-    let {isAuth} = useSelector(state => state.login);
+    let {isAuth} = useSelector(state => state.lg);
     const dispatch = useDispatch();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
