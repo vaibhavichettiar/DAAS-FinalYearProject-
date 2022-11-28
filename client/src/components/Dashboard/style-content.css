@@ -5,6 +5,11 @@
   padding-top: 20px;
 }
 
+#row{
+  width: 85%;
+  margin-left: auto;
+}
+
 .sidebarDiv{
   display: flex;
   height: 80vh;

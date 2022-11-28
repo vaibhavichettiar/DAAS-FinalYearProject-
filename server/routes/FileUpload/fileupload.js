@@ -3,6 +3,9 @@ const logger = require("../../logger/logger");
 let path = require('path');
 let formidable = require('formidable');
 let fs = require('fs');
+const { client } = require("../../config/config");
+const { v4: uuidv4 } = require('uuid');
+const cassandra = require('cassandra-driver');
 const {aws_access_key, aws_secret_key} = require("../../config/config");
 
 let AWS = require('aws-sdk');
@@ -21,7 +24,8 @@ const dataUpload = async (req, res) => {
         //this userid can be used to create the filename.
         const userid = req.headers.authorization.split(" ")[1];
         //******************************************//
-
+        console.log("UserID: "  + userid);
+        var filename = undefined
         var form = formidable.IncomingForm();
         var fileName, dataSetName, fileLocation, fileSize;
         form.multiples = true;
@@ -37,34 +41,45 @@ const dataUpload = async (req, res) => {
 
         form.onPart = function(part) {
             console.log("part : ", part);
-            let start = new Date().getTime();
-            let upload = s3Stream.upload({
-                "Bucket": bucket,
-                "Key": part.filename
-            });
-            upload.concurrentParts(5);
+            if(typeof part.filename != 'undefined'){
 
-            upload.on('error', function (error) {
-                console.log('errr',error);
-            });
-            upload.on('part', function (details) {
-                console.log('part',details);
-            });
-            upload.on('uploaded', function (details) {
-                let end = new Date().getTime();
-                console.log('it took',end-start);
-                console.log('uploaded',details);
-            });
-            part.pipe(upload);
+                let start = new Date().getTime();
+                let upload = s3Stream.upload({
+                    "Bucket": bucket,
+                    "Key": userid + "/" + part.filename
+                });
+                upload.concurrentParts(5);
+
+                upload.on('error', function (error) {
+                    console.log('errr',error);
+                });
+                upload.on('part', function (details) {
+                    console.log('part',details);
+                });
+                upload.on('uploaded', function (details) {
+                    let end = new Date().getTime();
+                    console.log('it took',end-start);
+                    console.log('uploaded',details);
+                });
+                part.pipe(upload);
+                filename = part.filename
+            }
         }
 
         form.parse(req, function(err, fields, files) {
             if (err) {
                 backendUtils.respond(res, 500, err);
             }
+            auditDatasetDetails(userid, filename)
             backendUtils.respond(res, 200, 'file uploaded successfully');
         });
         
+}
+
+const auditDatasetDetails = async ( userid, datasetName) => {
+    const query = `INSERT INTO daas_ks.dataset_metadata (id, "userId" , table_name, name, job_type, job_status) values(?,?,?,?,?,?);`;
+    client.execute(query, [uuidv4(), userid, null, datasetName, null, 0],
+        { consistency: cassandra.types.consistencies.localQuorum, prepare: true })
 }
 
 module.exports = {
