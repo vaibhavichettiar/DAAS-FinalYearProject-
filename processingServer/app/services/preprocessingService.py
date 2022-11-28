@@ -27,7 +27,7 @@ class PreprocessingService:
             timeColumn = "date"
         self.timeColumn = timeColumn.lower()
         if targetColumn is None:
-            targetColumn = "sales"
+            targetColumn = "target"
         self.targetColumn = targetColumn.lower()
         if dateFormat is None or dateFormat == "":
             dateFormat = 'MM/dd/yyyy'
@@ -92,8 +92,18 @@ class PreprocessingService:
     def renameColumns(self, dataframe):
         if dataframe is not None:
             for column in dataframe.columns:
-                renamedColumn = ''.join(letter for letter in column if letter.isalnum())
-                dataframe = dataframe.withColumnRenamed(column, renamedColumn.lower())
+                if column.lower() == self.targetColumn.lower():
+                    logger.info("Changing the column name %s to %s", column, 'target')
+                    dataframe = dataframe.withColumnRenamed(column, 'target')
+                    self.targetColumn = 'target'
+                elif column.lower() == self.timeColumn.lower():
+                    logger.info("Changing the column name %s to %s", column, 'date')
+                    dataframe = dataframe.withColumnRenamed(column, 'date')
+                    self.timeColumn = 'date'
+                else:
+                    renamedColumn = ''.join(letter for letter in column if letter.isalnum())
+                    dataframe = dataframe.withColumnRenamed(column, renamedColumn.lower())
+                
             return dataframe
         else:
             raise Exception("Data is not valid")
