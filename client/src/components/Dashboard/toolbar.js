@@ -11,13 +11,14 @@ import { Container } from "react-bootstrap";
 
 export function Toolbar() {
     let {datasetDetails} = useSelector(state => state.dashboard.userDetails);
+    let {name} = useSelector(state => state.dashboard.userDetails);
     const [datasetNames, setDatasetNames] = useState([]);
     const dispatch = useDispatch();
     useEffect(async () => {
-        await dispatch(getUserDetails({"username":"karthik"}));
+        await dispatch(getUserDetails({"username":name}));
         async function fetchData() {
             let data = {
-                "username": "karthik"
+                "username": name
             }
             const response = await Axios.get(ipAddress+"/api/userProfile", {
                 params: data

@@ -1,11 +1,14 @@
 import React, {useState, useRef} from 'react';
 import './style.css';
 import { uploadAction } from '../../../redux/actions/dashboardAction';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
+import {ipAddress} from "../../../config";
+import Axios from 'axios';
 
 function DataUpload() {
     // drag state
   const [dragActive, setDragActive] = useState(false);
+  let {userid} = useSelector(state => state.lg.userRes);
   // ref
   const inputRef = useRef(null);
   const dispatch = useDispatch();
@@ -33,7 +36,13 @@ function DataUpload() {
     console.log(e.target.files[0]);
     const formData = new FormData();
     formData.append('file',e.target.files[0])
-    await dispatch(uploadAction(formData));
+    formData.append('userid', userid);
+    //await dispatch(uploadAction(formData));
+    const response = await Axios.post(ipAddress+"/api/fileUpload", formData, {headers: {
+      'Authorization': `Basic ${userid}` 
+    }})
+  .then((response) => {
+      return response })
     alert("file has be uploaded successfully");
   };
   
