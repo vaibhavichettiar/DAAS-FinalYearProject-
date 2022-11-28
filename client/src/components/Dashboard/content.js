@@ -79,7 +79,7 @@ export function Content() {
 
     return ( 
         <Container>
-      <Row>
+      <Row id="row">
         <Col xs={3}>
     <div className="sidebarDiv">
       <CDBSidebar textColor="#fff" className="sidebar" backgroundColor="#2b6777"  color="#2b6777">
