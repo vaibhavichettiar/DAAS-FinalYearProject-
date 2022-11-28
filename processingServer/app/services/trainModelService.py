@@ -22,6 +22,15 @@ class TrainModelService:
 
     def trainModel(self, userId, datasetId, timeColumn, targetColumn, categoryColumn):
         try:
+            if categoryColumn is not None:
+                categoryColumn = categoryColumn.lower()
+            if timeColumn is not None:
+                timeColumn = timeColumn.lower()
+            if targetColumn is not None:
+                targetColumn = targetColumn.lower()
+            logger.info("categoryColumn: %s", categoryColumn)
+            logger.info("timeColumn: %s", timeColumn)
+            logger.info("targetColumn: %s", targetColumn)
             datasetTablename = self.getTableName(datasetId)
 
             dataframe = self.load_and_get_table_df(KEYSPACE, datasetTablename)

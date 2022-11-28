@@ -25,10 +25,10 @@ class PreprocessingService:
         self.datasetId = datasetId
         if timeColumn is None:
             timeColumn = "date"
-        self.timeColumn = timeColumn
+        self.timeColumn = timeColumn.lower()
         if targetColumn is None:
             targetColumn = "sales"
-        self.targetColumn = targetColumn
+        self.targetColumn = targetColumn.lower()
         if dateFormat is None or dateFormat == "":
             dateFormat = 'MM/dd/yyyy'
         self.dateFormat = dateFormat
@@ -43,7 +43,7 @@ class PreprocessingService:
                 dataFrame = dataFrame.withColumn("id", monotonically_increasing_id())
 
                 # remove symbols from column names 
-                #dataFrame = self.renameColumns(dataFrame)
+                dataFrame = self.renameColumns(dataFrame)
                 dataFrame = self.changeDataTypes(dataFrame)
                 dataFrame = self.handleNullVal(dataFrame)
                 logger.info(dataFrame.take(2))
