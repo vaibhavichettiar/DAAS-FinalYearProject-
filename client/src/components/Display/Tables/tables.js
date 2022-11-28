@@ -9,6 +9,7 @@ function Tables() {
     let { userid } = useSelector(state => state.dashboard.userDetails);
     let { datasetid } = useSelector(state => state.dashboard.selectedDataset);
     const [parsedCsvData, setParsedCsvData] = useState([]);
+    const [reRender, setReRender] = useState(true);
 
 
     useEffect(() => {
@@ -28,10 +29,13 @@ function Tables() {
                 return res.data;
             });
             console.log("res = ", response.data);
+            if (response.data.length > 0) {
             setParsedCsvData(response.data);
+            setReRender(false);
+            }
         }
         fetchData();
-    }, []);
+    }, [reRender]);
 
     let memoHeaders = [];
     if (parsedCsvData.length > 0) {
