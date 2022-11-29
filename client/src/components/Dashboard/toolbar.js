@@ -14,8 +14,8 @@ export function Toolbar() {
     let {username} = useSelector(state => state.lg.userRes);
     const [datasetNames, setDatasetNames] = useState([]);
     const dispatch = useDispatch();
-    useEffect(async () => {
-        await dispatch(getUserDetails({"username":username}));
+    useEffect(() => {
+        dispatch(getUserDetails({"username":username}));
         async function fetchData() {
             let data = {
                 "username": username

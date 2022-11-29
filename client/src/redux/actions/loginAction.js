@@ -1,4 +1,4 @@
-import { USER_LOGIN } from "../constants/userConstants";
+import { USER_LOGIN, USER_LOGOUT } from "../constants/userConstants";
 
 import Axios from 'axios';
 import { ipAddress } from "../../config";
@@ -11,4 +11,10 @@ export const userLogin = (data) => (dispatch) =>{
             payload: response.data
         })
     })
+}
+
+export const userLogout = () => (dispatch) =>{
+        dispatch({
+            type: USER_LOGOUT
+        })
 }
