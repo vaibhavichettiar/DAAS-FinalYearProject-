@@ -84,7 +84,7 @@ function Prediction() {
                 "endDate": newEndDate,
                 "productId": parseInt(productId),
                 "userId": userid,
-                "datasetId": "ce196496-e014-488b-b218-4c7c6d8f4a45"
+                "datasetId": datasetid
             }
               const response = await Axios.get(ipAddress+"/api/predict", {
                 params: data

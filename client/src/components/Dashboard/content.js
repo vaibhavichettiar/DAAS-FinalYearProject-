@@ -15,12 +15,10 @@ import { useSelector } from "react-redux";
 
 export function Content() {
     const [clickedLink, setclickedLink] = useState({upload: true, tables: false, profile: false, analytics: false, prediction: false});
-    let {name, datasetDetails} = useSelector(state => state.login.userRes);
+
+    let {userid} = useSelector(state => state.lg.userRes);
+
     const [hover, setHover] = useState(false)
-    // const dispatch = useDispatch();
-    // useEffect(() => {
-    //   dispatch(getUserDetails({"username":"karthik"}));
-    // }, []);
 
     const sectionStyle = {
       background: hover ? '#c8d8e4' : '#2b6777',
@@ -81,7 +79,7 @@ export function Content() {
 
     return ( 
         <Container>
-      <Row>
+      <Row id="row">
         <Col xs={3}>
     <div className="sidebarDiv">
       <CDBSidebar textColor="#fff" className="sidebar" backgroundColor="#2b6777"  color="#2b6777">

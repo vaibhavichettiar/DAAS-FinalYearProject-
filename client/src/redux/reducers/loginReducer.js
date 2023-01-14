@@ -1,8 +1,8 @@
-import { USER_LOGIN } from "../constants/userConstants";
+import { USER_LOGIN, USER_LOGOUT } from "../constants/userConstants";
 
 const initialState = {
-    isAuth: false,
-    userRes: {}
+  isAuth: false,
+  userRes: {}
 }
 
 export const loginReducer = (state = initialState, action) => {
@@ -13,7 +13,12 @@ export const loginReducer = (state = initialState, action) => {
           isAuth: true,
           userRes: action.payload
         };
-        default:
-      return state;
+      case USER_LOGOUT:
+        return {
+          ...state,
+          isAuth: false
+        }
+      default:
+        return state;
   }
 };

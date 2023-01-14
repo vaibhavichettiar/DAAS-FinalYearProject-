@@ -1,11 +1,12 @@
-import { applyMiddleware, combineReducers, createStore, compose } from "redux";
+import { applyMiddleware, combineReducers, compose } from "redux";
+import {configureStore} from "@reduxjs/toolkit";
 import thunk from "redux-thunk";
-import { loginReducer } from "./reducers/loginReducer";
 import { registerReducer } from "./reducers/registerReducer";
 import { dashboardReducer } from "./reducers/dashboardReducer";
+import { loginReducer } from "./reducers/loginReducer";
 
 const appReducer = combineReducers({
-  login: loginReducer,
+  lg: loginReducer,
   register: registerReducer,
   dashboard: dashboardReducer
 });
@@ -13,8 +14,8 @@ const appReducer = combineReducers({
 const initialState = {
   };
   const createComposer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-  export const store = createStore(
-    appReducer,
+  export const store = configureStore(
+    {reducer:appReducer},
     initialState,
     createComposer(applyMiddleware(thunk))
   );

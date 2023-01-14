@@ -21,6 +21,7 @@ class PredictionService():
 
     def predict(self, startDate, endDate, productId, userId, datasetId):
         try:
+            logger.info("Prediction request received for the datasetID: %s", datasetId)
             modelFilename = self.getModelFileName(productId, datasetId)
             logger.info("ModelFilename: %s", modelFilename)
             response = s3Conn.Object(BUCKET, userId + "/models/" + modelFilename)

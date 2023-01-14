@@ -16,12 +16,12 @@ const loginUser = async (req, res) => {
         if (!result || result.length == 0) {
             backendUtils.respondMessage(res,404,"Username or Password is wrong");
         }
-        password = crypt.decrypt(result);
+        password = crypt.decrypt(result.password);
         if(user.password !== password){
             backendUtils.respondMessage(res,404,"Username or Password is wrong");
         }
         const token = jwt.generateAccessToken(user);
-        const userObject = {username: user.username, token: token};
+        const userObject = {username: user.username, token: token, userid: result.id};
         backendUtils.respond(res,200,userObject);
     } catch (err){
         logger.error(err);

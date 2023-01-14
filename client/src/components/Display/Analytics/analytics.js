@@ -5,6 +5,8 @@ import AreaChart from "./areaChart";
 import { useSelector } from "react-redux";
 import { Multiselect } from "multiselect-react-dropdown";
 import Axios from "axios";
+import {ipAddress} from '../../../config'
+
 
 function Analytics() {
   let { userid } = useSelector((state) => state.dashboard.userDetails);
@@ -33,7 +35,7 @@ function Analytics() {
         datasetid: datasetid,
       };
       const response = await Axios.get(
-        "http://localhost:5001/api/tables",
+        ipAddress+"/api/tables",
         {
           params: data,
         },
@@ -115,7 +117,7 @@ function Analytics() {
       datasets: [
         {
           label: "Sales",
-          data: newArray.map((data) => data.sales),
+          data: newArray.map((data) => data.target),
           backgroundColor: [
             "rgba(75,192,192,1)",
             "#ecf0f1",
@@ -145,7 +147,7 @@ function Analytics() {
         {
           fill: true,
           label: "Sales",
-          data: newArray.map((data) => data.sales),
+          data: newArray.map((data) => data.target),
           backgroundColor: ["rgba(53,162,235,0.5)"],
           borderColor: "rgb(53,162,235)",
           borderWidth: 2,

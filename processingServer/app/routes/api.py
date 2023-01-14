@@ -67,6 +67,9 @@ def train(userId, datasetId, timeColumn, targetColumn, categoryColumn):
 
 def prepareData(userId, datasetId, timeColumn, targetColumn, categoryColumn, dateFormat):
 	process(userId, datasetId, timeColumn, targetColumn, dateFormat)
+	#change the targetColumn as preprocessing change the value of target column to target 
+	targetColumn = "target"
+	timeColumn = "date"
 	train(userId, datasetId, timeColumn, targetColumn, categoryColumn)
 		
 
